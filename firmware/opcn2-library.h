@@ -153,7 +153,7 @@ namespace Opcn2Library
         uint32_t _32bit_int(byte val0, byte val1, byte val2, byte val3);
         */
     public:
-        OPCN2(int chip_select);
+        OPCN2(uint8_t chip_select);
 
         bool ping();
         bool on();

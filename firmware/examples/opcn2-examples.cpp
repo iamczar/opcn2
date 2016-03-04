@@ -5,16 +5,13 @@
 
 #define CS A2
 
+Opcn2Library::OPCN2 alpha(CS);
+
 void setup(){
     Serial.begin(9600);
+
     Serial.print("Testing OPC-N2 v0.0.1");
     Serial.println(alpha.firmware_version);
-
-    Opcn2Library::OPCN2 alpha(CS);
-
-    delay(1000);
-
-    alpha.on();
 }
 
 void loop(){
