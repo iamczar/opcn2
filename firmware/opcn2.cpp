@@ -188,7 +188,6 @@ void Opcn2Library::OPCN2::set_laser_power(uint8_t value){
 void Opcn2Library::OPCN2::toggle_fan(bool state){
     // Toggle the power state of the fan
     byte resp[2];
-    byte expected[] = {0xF3, 0x03};
 
     digitalWrite(this->_CS, LOW);
     resp[0] = SPI.transfer(0x03);
@@ -213,7 +212,6 @@ void Opcn2Library::OPCN2::toggle_fan(bool state){
 void Opcn2Library::OPCN2::toggle_laser(bool state){
     // Toggle the power state of the laser
     byte resp[2];
-    byte expected[] = {0xF3, 0x03};
 
     digitalWrite(this->_CS, LOW);
     resp[0] = SPI.transfer(0x03);
@@ -234,9 +232,9 @@ void Opcn2Library::OPCN2::toggle_laser(bool state){
     return;
 }
 
-histogram_data Opcn2Library::OPCN2::histogram(){
+hist_data Opcn2Library::OPCN2::histogram(){
     // Read the histogram
-    histogram_data data;                // Empty structure for data
+    hist_data data;                     // Empty structure for data
     byte vals[62];                      // Empty array of type bytes
 
     // Read the data and clear the local memory

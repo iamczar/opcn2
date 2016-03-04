@@ -12,7 +12,7 @@
 
 namespace Opcn2Library
 {
-    struct histogram_data {
+    struct hist_data {
         int bin0;
         int bin1;
         int bin2;
@@ -163,7 +163,7 @@ namespace Opcn2Library
         void set_laser_power(uint8_t value);
         void toggle_fan(bool state);
         void toggle_laser(bool state);
-        histogram_data histogram();
+        hist_data histogram();
         config_variables config();
         String info_string();
 
