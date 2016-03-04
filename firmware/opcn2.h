@@ -172,9 +172,9 @@ namespace Opcn2Library
         histogram_data histogram();
         config_variables config();
         */
-        //String info_string();
+        String info_string();
 
-        //String firmware_version;
+        String firmware_version;
     };
 }
 

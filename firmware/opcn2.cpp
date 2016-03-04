@@ -10,7 +10,7 @@ Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
     SPI.setClockSpeed(1000000);
 
     // Set the firmware version by reading the info String
-    //firmware_version = this->info_string();
+    firmware_version = this->info_string();
 }
 /*
 uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
@@ -409,7 +409,7 @@ config_variables Opcn2Library::OPCN2::config(){
     return results;
 }
 */
-/*
+
 String Opcn2Library::OPCN2::info_string(){
     // Read the info String and return the firmware version
     String result = "";
@@ -445,4 +445,3 @@ String Opcn2Library::OPCN2::info_string(){
 
     return result;
 }
-*/
