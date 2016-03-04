@@ -12,12 +12,12 @@ Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
     // Set the firmware version by reading the info String
     firmware_version = this->info_string();
 }
-
+/*
 uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
     // Combine two bytes into a 16-bit unsigned int
     return ((MSB << 8) | LSB);
 }
-
+*/
 bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int length){
     // Compare two arrays
     bool result = true;
@@ -31,6 +31,7 @@ bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int leng
     return result;
 }
 
+/*
 float Opcn2Library::OPCN2::_calculate_float(byte val0, byte val1, byte val2, byte val3){
     // Return an IEEE754 float from an array of 4 bytes
     union u_tag {
@@ -50,6 +51,8 @@ uint32_t Opcn2Library::OPCN2::_32bit_int(byte val0, byte val1, byte val2, byte v
     // Return a 32-bit unsigned int from 4 bytes
     return ((val3 << 24) | (val2 << 16) | (val1 << 8) | val0);
 }
+
+*/
 
 bool Opcn2Library::OPCN2::ping(){
     // Isse the check status command
@@ -98,7 +101,7 @@ bool Opcn2Library::OPCN2::off(){
 
     return this->_compare_arrays(vals, expected, 2);
 }
-
+/*
 bool Opcn2Library::OPCN2::write_config_variables(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
 
@@ -402,7 +405,7 @@ config_variables Opcn2Library::OPCN2::config(){
 
     return results;
 }
-
+*/
 String Opcn2Library::OPCN2::info_string(){
     // Read the info String and return the firmware version
     String result = "";

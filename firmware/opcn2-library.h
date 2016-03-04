@@ -11,7 +11,7 @@
 
 namespace Opcn2Library
 {
-
+    /*
     struct histogram_data {
 
         int bin0;
@@ -141,23 +141,24 @@ namespace Opcn2Library
         // Time of Flight to Sample Flow Rate Conversion Factor
         unsigned int tof_sfr;
         };
-
-
+    */
     class OPCN2
     {
     private:
         uint8_t _CS;
+        /*
         uint16_t _16bit_int(byte MSB, byte LSB);
         bool _compare_arrays(byte array1[], byte array2[]);
         float _calculate_float(byte val0, byte val1, byte val2, byte val3);
         uint32_t _32bit_int(byte val0, byte val1, byte val2, byte val3);
-
+        */
     public:
         OPCN2(int chip_select);
 
         bool ping();
         bool on();
         bool off();
+        /*
         bool write_config_variables(byte values[]);
         bool save_config_variables();
         void enter_bootloader();
@@ -168,6 +169,7 @@ namespace Opcn2Library
         histogram_data histogram();
         config_variables config();
         String info_string();
+        */
 
         String firmware_version;
     };
