@@ -10,7 +10,7 @@ Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
     SPI.setClockSpeed(1000000);
 
     // Set the firmware version by reading the info String
-    firmware_version = this->info_string();
+    //firmware_version = this->info_string();
 }
 /*
 uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
@@ -18,6 +18,7 @@ uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
     return ((MSB << 8) | LSB);
 }
 */
+/*
 bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int length){
     // Compare two arrays
     bool result = true;
@@ -30,7 +31,7 @@ bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int leng
 
     return result;
 }
-
+*/
 /*
 float Opcn2Library::OPCN2::_calculate_float(byte val0, byte val1, byte val2, byte val3){
     // Return an IEEE754 float from an array of 4 bytes
@@ -63,9 +64,10 @@ bool Opcn2Library::OPCN2::ping(){
     resp[0] = SPI.transfer(0xCF);       // issue the command byte
     digitalWrite(this->_CS, HIGH);      // pull the pin high
 
-    return this->_compare_arrays(resp, expected, 1);
+    return true;
+    //return this->_compare_arrays(resp, expected, 1);
 }
-
+/*
 bool Opcn2Library::OPCN2::on(){
     // Turn ON the OPC
     byte vals[2];
@@ -101,6 +103,7 @@ bool Opcn2Library::OPCN2::off(){
 
     return this->_compare_arrays(vals, expected, 2);
 }
+*/
 /*
 bool Opcn2Library::OPCN2::write_config_variables(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
