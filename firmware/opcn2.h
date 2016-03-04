@@ -164,7 +164,7 @@ namespace Opcn2Library
         void toggle_fan(bool state);
         void toggle_laser(bool state);
         //hist_data histogram();
-        //config_variables config();
+        config_variables config();
         String info_string();
 
         String firmware_version;
