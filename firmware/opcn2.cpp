@@ -18,7 +18,7 @@ uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
     return ((MSB << 8) | LSB);
 }
 */
-/*
+
 bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int length){
     // Compare two arrays
     bool result = true;
@@ -31,7 +31,7 @@ bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int leng
 
     return result;
 }
-*/
+
 /*
 float Opcn2Library::OPCN2::_calculate_float(byte val0, byte val1, byte val2, byte val3){
     // Return an IEEE754 float from an array of 4 bytes

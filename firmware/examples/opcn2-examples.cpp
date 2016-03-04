@@ -15,9 +15,10 @@ void setup(){
 }
 
 void loop(){
-    alpha.on();
+    Serial.println(alpha.firmware_version);
+    //alpha.on();
     delay(5000);
-    alpha.off();
+    //alpha.off();
     delay(10000);
 
     /*
