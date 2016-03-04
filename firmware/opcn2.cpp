@@ -31,7 +31,6 @@ bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int leng
     return result;
 }
 
-/*
 float Opcn2Library::OPCN2::_calculate_float(byte val0, byte val1, byte val2, byte val3){
     // Return an IEEE754 float from an array of 4 bytes
     union u_tag {
@@ -52,8 +51,6 @@ uint32_t Opcn2Library::OPCN2::_32bit_int(byte val0, byte val1, byte val2, byte v
     return ((val3 << 24) | (val2 << 16) | (val1 << 8) | val0);
 }
 
-*/
-
 bool Opcn2Library::OPCN2::ping(){
     // Isse the check status command
     byte resp[1];
@@ -66,7 +63,7 @@ bool Opcn2Library::OPCN2::ping(){
     return true;
     //return this->_compare_arrays(resp, expected, 1);
 }
-/*
+
 bool Opcn2Library::OPCN2::on(){
     // Turn ON the OPC
     byte vals[2];
@@ -102,7 +99,7 @@ bool Opcn2Library::OPCN2::off(){
 
     return this->_compare_arrays(vals, expected, 2);
 }
-*/
+
 /*
 bool Opcn2Library::OPCN2::write_config_variables(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
