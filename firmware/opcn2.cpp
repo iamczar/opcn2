@@ -60,8 +60,7 @@ bool Opcn2Library::OPCN2::ping(){
     resp[0] = SPI.transfer(0xCF);       // issue the command byte
     digitalWrite(this->_CS, HIGH);      // pull the pin high
 
-    return true;
-    //return this->_compare_arrays(resp, expected, 1);
+    return this->_compare_arrays(resp, expected, 1);
 }
 
 bool Opcn2Library::OPCN2::on(){
@@ -132,7 +131,6 @@ bool Opcn2Library::OPCN2::save_config_variables(){
 void Opcn2Library::OPCN2::enter_bootloader(){
     // Enter bootloader mode
     byte resp[1];
-    byte expected[] = {0xF3};
 
     digitalWrite(this->_CS, LOW);
     resp[0] = SPI.transfer(0x41);
@@ -144,7 +142,6 @@ void Opcn2Library::OPCN2::enter_bootloader(){
 void Opcn2Library::OPCN2::set_fan_power(uint8_t value){
     // Set the Fan Power
     byte resp[3];
-    byte expected[] = {0xF3, 0x42, 0x00};
 
     digitalWrite(this->_CS, LOW);
     resp[0] = SPI.transfer(0x42);
@@ -166,7 +163,6 @@ void Opcn2Library::OPCN2::set_fan_power(uint8_t value){
 void Opcn2Library::OPCN2::set_laser_power(uint8_t value){
     // Set the Laser Power
     byte resp[3];
-    byte expected[] = {0xF3, 0x42, 0x01};
 
     digitalWrite(this->_CS, LOW);
     resp[0] = SPI.transfer(0x42);
