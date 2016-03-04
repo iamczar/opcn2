@@ -168,8 +168,8 @@ namespace Opcn2Library
         void toggle_laser(bool state);
         histogram_data histogram();
         config_variables config();
-        String info_string();
         */
+        String info_string();
 
         String firmware_version;
     };
