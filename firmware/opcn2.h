@@ -12,9 +12,7 @@
 
 namespace Opcn2Library
 {
-    /*
     struct histogram_data {
-
         int bin0;
         int bin1;
         int bin2;
@@ -53,7 +51,6 @@ namespace Opcn2Library
         float pm1;
         float pm25;
         float pm10;
-
         };
 
     struct config_variables {
@@ -142,7 +139,7 @@ namespace Opcn2Library
         // Time of Flight to Sample Flow Rate Conversion Factor
         unsigned int tof_sfr;
         };
-    */
+
     class OPCN2
     {
     private:
