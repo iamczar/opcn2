@@ -12,12 +12,11 @@ Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
     // Set the firmware version by reading the info String
     firmware_version = this->info_string();
 }
-/*
+
 uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
     // Combine two bytes into a 16-bit unsigned int
     return ((MSB << 8) | LSB);
 }
-*/
 
 bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int length){
     // Compare two arrays

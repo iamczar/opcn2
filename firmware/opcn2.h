@@ -147,9 +147,8 @@ namespace Opcn2Library
     {
     private:
         uint8_t _CS;
-        /*
+
         uint16_t _16bit_int(byte MSB, byte LSB);
-        */
         bool _compare_arrays(byte array1[], byte array2[], int length);
         /*
         float _calculate_float(byte val0, byte val1, byte val2, byte val3);
