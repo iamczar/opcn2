@@ -163,8 +163,8 @@ namespace Opcn2Library
         void set_laser_power(uint8_t value);
         void toggle_fan(bool state);
         void toggle_laser(bool state);
-        hist_data histogram();
-        config_variables config();
+        //hist_data histogram();
+        //config_variables config();
         String info_string();
 
         String firmware_version;

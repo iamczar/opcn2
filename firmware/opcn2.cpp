@@ -219,6 +219,7 @@ void Opcn2Library::OPCN2::toggle_laser(bool state){
     return;
 }
 
+/*
 hist_data Opcn2Library::OPCN2::histogram(){
     // Read the histogram
     hist_data data;                     // Empty structure for data
@@ -389,6 +390,7 @@ config_variables Opcn2Library::OPCN2::config(){
     return results;
 }
 
+*/
 String Opcn2Library::OPCN2::info_string(){
     // Read the info String and return the firmware version
     String result = "";
