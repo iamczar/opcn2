@@ -409,6 +409,7 @@ config_variables Opcn2Library::OPCN2::config(){
     return results;
 }
 */
+/*
 String Opcn2Library::OPCN2::info_string(){
     // Read the info String and return the firmware version
     String result = "";
@@ -444,3 +445,4 @@ String Opcn2Library::OPCN2::info_string(){
 
     return result;
 }
+*/
