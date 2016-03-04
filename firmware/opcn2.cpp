@@ -284,7 +284,7 @@ hist_data Opcn2Library::OPCN2::histogram(){
 }
 
 */
-config_variables Opcn2Library::OPCN2::config(){
+struct Opcn2Library::OPCN2::config(){
     // Read the config variables
     config_variables results;       // empty structure for the data
     byte vals[256];
