@@ -130,10 +130,8 @@ bool Opcn2Library::OPCN2::save_config_variables(){
 
 void Opcn2Library::OPCN2::enter_bootloader(){
     // Enter bootloader mode
-    byte resp[1];
-
     digitalWrite(this->_CS, LOW);
-    resp[0] = SPI.transfer(0x41);
+    SPI.transfer(0x41);
     digitalWrite(this->_CS, HIGH);
 
     return;
@@ -141,20 +139,19 @@ void Opcn2Library::OPCN2::enter_bootloader(){
 
 void Opcn2Library::OPCN2::set_fan_power(uint8_t value){
     // Set the Fan Power
-    byte resp[3];
 
     digitalWrite(this->_CS, LOW);
-    resp[0] = SPI.transfer(0x42);
+    SPI.transfer(0x42);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
-    resp[1] = SPI.transfer(0x00);
+    SPI.transfer(0x00);
 
     delayMicroseconds(4);
 
-    resp[2] = SPI.transfer(value);
+    SPI.transfer(value);
     digitalWrite(this->_CS, HIGH);
 
     return;
@@ -162,20 +159,18 @@ void Opcn2Library::OPCN2::set_fan_power(uint8_t value){
 
 void Opcn2Library::OPCN2::set_laser_power(uint8_t value){
     // Set the Laser Power
-    byte resp[3];
-
     digitalWrite(this->_CS, LOW);
-    resp[0] = SPI.transfer(0x42);
+    SPI.transfer(0x42);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
-    resp[1] = SPI.transfer(0x01);
+    SPI.transfer(0x01);
 
     delayMicroseconds(4);
 
-    resp[2] = SPI.transfer(value);
+    SPI.transfer(value);
     digitalWrite(this->_CS, HIGH);
 
     return;
@@ -183,10 +178,8 @@ void Opcn2Library::OPCN2::set_laser_power(uint8_t value){
 
 void Opcn2Library::OPCN2::toggle_fan(bool state){
     // Toggle the power state of the fan
-    byte resp[2];
-
     digitalWrite(this->_CS, LOW);
-    resp[0] = SPI.transfer(0x03);
+    SPI.transfer(0x03);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
@@ -194,10 +187,10 @@ void Opcn2Library::OPCN2::toggle_fan(bool state){
     // turn either on or off
     digitalWrite(this->_CS, LOW);
     if (state == true){
-        resp[1] = SPI.transfer(0x04);
+        SPI.transfer(0x04);
     }
     else {
-        resp[1] = SPI.transfer(0x05);
+        SPI.transfer(0x05);
     }
 
     digitalWrite(this->_CS, HIGH);
@@ -207,20 +200,18 @@ void Opcn2Library::OPCN2::toggle_fan(bool state){
 
 void Opcn2Library::OPCN2::toggle_laser(bool state){
     // Toggle the power state of the laser
-    byte resp[2];
-
     digitalWrite(this->_CS, LOW);
-    resp[0] = SPI.transfer(0x03);
+    SPI.transfer(0x03);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
     if (state == true){
-        resp[1] = SPI.transfer(0x02);
+        SPI.transfer(0x02);
     }
     else {
-        resp[1] = SPI.transfer(0x03);
+        SPI.transfer(0x03);
     }
 
     digitalWrite(this->_CS, HIGH);
