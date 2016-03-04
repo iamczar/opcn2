@@ -3,8 +3,9 @@
     Created by David H Hagan, March 2016.
     Released with an MIT license.
 */
-#ifndef Opcn2_Library_h
-#define Opcn2_Library_h
+
+#ifndef Opcn2_h
+#define Opcn2_h
 
 // Includes
 #include "application.h"

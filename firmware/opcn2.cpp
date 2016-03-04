@@ -1,4 +1,4 @@
-#include "opcn2-library.h"
+#include "opcn2.h"
 
 Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
     _CS = chip_select;
