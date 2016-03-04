@@ -100,7 +100,6 @@ bool Opcn2Library::OPCN2::off(){
     return this->_compare_arrays(vals, expected, 2);
 }
 
-/*
 bool Opcn2Library::OPCN2::write_config_variables(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
 
@@ -404,7 +403,6 @@ config_variables Opcn2Library::OPCN2::config(){
 
     return results;
 }
-*/
 
 String Opcn2Library::OPCN2::info_string(){
     // Read the info String and return the firmware version

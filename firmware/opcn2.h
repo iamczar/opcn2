@@ -156,7 +156,6 @@ namespace Opcn2Library
         bool ping();
         bool on();
         bool off();
-        /*
         bool write_config_variables(byte values[]);
         bool save_config_variables();
         void enter_bootloader();
@@ -166,7 +165,6 @@ namespace Opcn2Library
         void toggle_laser(bool state);
         histogram_data histogram();
         config_variables config();
-        */
         String info_string();
 
         String firmware_version;
