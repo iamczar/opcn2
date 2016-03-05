@@ -53,7 +53,7 @@ typedef struct hist_data {
 } hist_data;
 */
 
-typedef struct {
+struct ConfigurationVariables {
     // Bin Boundaries
     int bb0;
     int bb1;
@@ -137,7 +137,7 @@ typedef struct {
 
     // Time of Flight to Sample Flow Rate Conversion Factor
     unsigned int tof_sfr;
-} ConfigurationVariables;
+};
 
 class OPCN2
 {
