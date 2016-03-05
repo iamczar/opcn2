@@ -10,8 +10,7 @@
 // Includes
 #include "application.h"
 
-/*
-typedef struct hist_data {
+struct HistogramData {
     int bin0;
     int bin1;
     int bin2;
@@ -50,8 +49,7 @@ typedef struct hist_data {
     float pm1;
     float pm25;
     float pm10;
-} hist_data;
-*/
+};
 
 struct ConfigurationVariables {
     // Bin Boundaries
@@ -163,7 +161,7 @@ public:
     void toggle_fan(bool state);
     void toggle_laser(bool state);
 
-    //struct hist_data histogram();
+    HistogramData histogram();
     ConfigurationVariables config();
     String info_string();
 
