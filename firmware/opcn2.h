@@ -12,6 +12,7 @@
 
 namespace Opcn2Library
 {
+    /*
     typedef struct hist_data {
         int bin0;
         int bin1;
@@ -52,7 +53,7 @@ namespace Opcn2Library
         float pm25;
         float pm10;
     } hist_data;
-
+    */
     typedef struct config_vars {
         // Bin Boundaries
         int bb0;

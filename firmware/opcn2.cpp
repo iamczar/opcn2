@@ -219,6 +219,7 @@ void Opcn2Library::OPCN2::toggle_laser(bool state){
     return;
 }
 
+/*
 Opcn2Library::hist_data Opcn2Library::OPCN2::histogram(){
     // Read the histogram
     hist_data data;                     // Empty structure for data
@@ -281,7 +282,7 @@ Opcn2Library::hist_data Opcn2Library::OPCN2::histogram(){
 
     return data;
 }
-
+*/
 Opcn2Library::config_vars Opcn2Library::OPCN2::config(){
     // Read the config variables
     config_vars results;       // empty structure for the data
