@@ -164,7 +164,7 @@ public:
     void toggle_laser(bool state);
 
     //struct hist_data histogram();
-    struct ConfigurationVariables config();
+    ConfigurationVariables config();
     String info_string();
 
     String firmware_version;
