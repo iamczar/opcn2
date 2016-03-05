@@ -283,8 +283,8 @@ hist_data Opcn2Library::OPCN2::histogram(){
     return data;
 }
 */
-/*
-OPCN2::ConfigurationVariables OPCN2::config(){
+
+struct OPCN2::config(){
     // Read the config variables
     ConfigurationVariables results;       // empty structure for the data
     byte vals[256];
@@ -390,7 +390,7 @@ OPCN2::ConfigurationVariables OPCN2::config(){
 
     return results;
 }
-*/
+
 
 String OPCN2::info_string(){
     // Read the info String and return the firmware version
