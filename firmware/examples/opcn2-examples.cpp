@@ -5,7 +5,7 @@
 
 #define CS A2
 
-Opcn2Library::OPCN2 alpha(CS);
+OPCN2 alpha(CS);
 
 void setup(){
     Serial.begin(9600);

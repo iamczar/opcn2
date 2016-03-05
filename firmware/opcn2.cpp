@@ -1,6 +1,6 @@
 #include "opcn2.h"
 
-Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
+OPCN2::OPCN2(uint8_t chip_select){
     _CS = chip_select;
 
     // Set up SPI
@@ -13,12 +13,12 @@ Opcn2Library::OPCN2::OPCN2(uint8_t chip_select){
     firmware_version = this->info_string();
 }
 
-uint16_t Opcn2Library::OPCN2::_16bit_int(byte LSB, byte MSB){
+uint16_t OPCN2::_16bit_int(byte LSB, byte MSB){
     // Combine two bytes into a 16-bit unsigned int
     return ((MSB << 8) | LSB);
 }
 
-bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int length){
+bool OPCN2::_compare_arrays(byte array1[], byte array2[], int length){
     // Compare two arrays
     bool result = true;
 
@@ -31,7 +31,7 @@ bool Opcn2Library::OPCN2::_compare_arrays(byte array1[], byte array2[], int leng
     return result;
 }
 
-float Opcn2Library::OPCN2::_calculate_float(byte val0, byte val1, byte val2, byte val3){
+float OPCN2::_calculate_float(byte val0, byte val1, byte val2, byte val3){
     // Return an IEEE754 float from an array of 4 bytes
     union u_tag {
         byte b[4];
@@ -46,12 +46,12 @@ float Opcn2Library::OPCN2::_calculate_float(byte val0, byte val1, byte val2, byt
     return u.val;
 }
 
-uint32_t Opcn2Library::OPCN2::_32bit_int(byte val0, byte val1, byte val2, byte val3){
+uint32_t OPCN2::_32bit_int(byte val0, byte val1, byte val2, byte val3){
     // Return a 32-bit unsigned int from 4 bytes
     return ((val3 << 24) | (val2 << 16) | (val1 << 8) | val0);
 }
 
-bool Opcn2Library::OPCN2::ping(){
+bool OPCN2::ping(){
     // Isse the check status command
     byte resp[1];
     byte expected[] = {0xF3};
@@ -63,7 +63,7 @@ bool Opcn2Library::OPCN2::ping(){
     return this->_compare_arrays(resp, expected, 1);
 }
 
-bool Opcn2Library::OPCN2::on(){
+bool OPCN2::on(){
     // Turn ON the OPC
     byte vals[2];
     byte expected[] = {0xF3, 0x03};
@@ -81,7 +81,7 @@ bool Opcn2Library::OPCN2::on(){
     return this->_compare_arrays(vals, expected, 2);
 }
 
-bool Opcn2Library::OPCN2::off(){
+bool OPCN2::off(){
     // Turn OFF the OPC
     byte vals[2];
     byte expected[] = {0xF3, 0x03};
@@ -99,13 +99,13 @@ bool Opcn2Library::OPCN2::off(){
     return this->_compare_arrays(vals, expected, 2);
 }
 
-bool Opcn2Library::OPCN2::write_config_variables(byte values[]){
+bool OPCN2::write_config_variables(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
 
     return true;
 }
 
-bool Opcn2Library::OPCN2::save_config_variables(){
+bool OPCN2::save_config_variables(){
     // Save the config variables
     byte resp[6];
     byte commands[] = {0x3F, 0x3C, 0x3F, 0x3C, 0x43};
@@ -128,7 +128,7 @@ bool Opcn2Library::OPCN2::save_config_variables(){
     return this->_compare_arrays(resp, expected, 6);
 }
 
-void Opcn2Library::OPCN2::enter_bootloader(){
+void OPCN2::enter_bootloader(){
     // Enter bootloader mode
     digitalWrite(this->_CS, LOW);
     SPI.transfer(0x41);
@@ -137,7 +137,7 @@ void Opcn2Library::OPCN2::enter_bootloader(){
     return;
 }
 
-void Opcn2Library::OPCN2::set_fan_power(uint8_t value){
+void OPCN2::set_fan_power(uint8_t value){
     // Set the Fan Power
 
     digitalWrite(this->_CS, LOW);
@@ -157,7 +157,7 @@ void Opcn2Library::OPCN2::set_fan_power(uint8_t value){
     return;
 }
 
-void Opcn2Library::OPCN2::set_laser_power(uint8_t value){
+void OPCN2::set_laser_power(uint8_t value){
     // Set the Laser Power
     digitalWrite(this->_CS, LOW);
     SPI.transfer(0x42);
@@ -176,7 +176,7 @@ void Opcn2Library::OPCN2::set_laser_power(uint8_t value){
     return;
 }
 
-void Opcn2Library::OPCN2::toggle_fan(bool state){
+void OPCN2::toggle_fan(bool state){
     // Toggle the power state of the fan
     digitalWrite(this->_CS, LOW);
     SPI.transfer(0x03);
@@ -198,7 +198,7 @@ void Opcn2Library::OPCN2::toggle_fan(bool state){
     return;
 }
 
-void Opcn2Library::OPCN2::toggle_laser(bool state){
+void OPCN2::toggle_laser(bool state){
     // Toggle the power state of the laser
     digitalWrite(this->_CS, LOW);
     SPI.transfer(0x03);
@@ -220,7 +220,7 @@ void Opcn2Library::OPCN2::toggle_laser(bool state){
 }
 
 /*
-Opcn2Library::hist_data Opcn2Library::OPCN2::histogram(){
+hist_data Opcn2Library::OPCN2::histogram(){
     // Read the histogram
     hist_data data;                     // Empty structure for data
     byte vals[62];                      // Empty array of type bytes
@@ -283,7 +283,7 @@ Opcn2Library::hist_data Opcn2Library::OPCN2::histogram(){
     return data;
 }
 */
-Opcn2Library::ConfigurationVariables Opcn2Library::OPCN2::config(){
+ConfigurationVariables Opcn2Library::OPCN2::config(){
     // Read the config variables
     ConfigurationVariables results;       // empty structure for the data
     byte vals[256];
@@ -390,7 +390,7 @@ Opcn2Library::ConfigurationVariables Opcn2Library::OPCN2::config(){
     return results;
 }
 
-String Opcn2Library::OPCN2::info_string(){
+String OPCN2::info_string(){
     // Read the info String and return the firmware version
     String result = "";
     String tmp;
