@@ -6,15 +6,17 @@
 #define CS A2
 
 OPCN2 alpha(CS);
+HistogramData hist;
+ConfigurationVariables vars;
 
 void setup(){
     Serial.begin(9600);
 
-    Serial.print("Testing OPC-N2 v0.0.1");
+    Serial.print("Testing OPC-N2 v");
     Serial.println(alpha.firmware_version);
 
     // Read and print the configuration variables
-    ConfigurationVariables vars = alpha.config();
+    vars = alpha.config();
 
     Serial.println("\nConfiguration Variables");
     Serial.print("\tGSC:\t"); Serial.println(vars.gsc);
@@ -22,24 +24,21 @@ void setup(){
     Serial.print("\tLaser DAC:\t"); Serial.println(vars.laser_dac);
     Serial.print("\tFan DAC:\t"); Serial.println(vars.fan_dac);
     Serial.print("\tToF-SFR:\t"); Serial.println(vars.tof_sfr);
+
+    alpha.on();
+    delay(1000);
 }
 
 void loop(){
-    alpha.on();
 
-    delay(5000);
+    delay(3000);
 
-    alpha.off();
+    hist = alpha.histogram();
 
-    delay(5000);
+    // Print out the histogram data
+    Serial.print("\nSampling Period:\t"); Serial.println(hist.period);
+    Serial.print("PM1: "); Serial.println(hist.pm1);
+    Serial.print("PM2.5: "); Serial.println(hist.pm25);
+    Serial.print("PM10: "); Serial.println(hist.pm10);
 
-    /*
-    values = alpha.histogram();
-
-    Serial.println("");
-    Serial.print("Sampling Period:\t"); Serial.println(values.period);
-    Serial.print("PM1: "); Serial.println(values.pm1);
-    Serial.print("PM2.5: "); Serial.println(values.pm25);
-    Serial.print("PM10: "); Serial.println(values.pm10);
-    */
 }
