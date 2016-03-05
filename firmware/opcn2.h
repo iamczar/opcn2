@@ -12,7 +12,7 @@
 
 namespace Opcn2Library
 {
-    struct hist_data {
+    typedef struct hist_data {
         int bin0;
         int bin1;
         int bin2;
@@ -51,9 +51,9 @@ namespace Opcn2Library
         float pm1;
         float pm25;
         float pm10;
-    };
+    } hist_data;
 
-    struct config_vars {
+    typedef struct config_vars {
         // Bin Boundaries
         int bb0;
         int bb1;
@@ -137,7 +137,7 @@ namespace Opcn2Library
 
         // Time of Flight to Sample Flow Rate Conversion Factor
         unsigned int tof_sfr;
-    };
+    } config_vars;
 
     class OPCN2
     {
