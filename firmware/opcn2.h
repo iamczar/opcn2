@@ -12,7 +12,7 @@
 
 namespace Opcn2Library
 {
-    typedef struct {
+    struct hist_data {
         int bin0;
         int bin1;
         int bin2;
@@ -51,9 +51,9 @@ namespace Opcn2Library
         float pm1;
         float pm25;
         float pm10;
-    } hist_data;
+    };
 
-    typedef struct {
+    struct config_vars {
         // Bin Boundaries
         int bb0;
         int bb1;
@@ -137,7 +137,7 @@ namespace Opcn2Library
 
         // Time of Flight to Sample Flow Rate Conversion Factor
         unsigned int tof_sfr;
-    } config_variables;
+    };
 
     class OPCN2
     {
@@ -163,7 +163,7 @@ namespace Opcn2Library
         void toggle_fan(bool state);
         void toggle_laser(bool state);
         struct hist_data histogram();
-        struct config_variables config();
+        struct config_vars config();
         String info_string();
 
         String firmware_version;
