@@ -54,7 +54,7 @@ namespace Opcn2Library
         float pm10;
     } hist_data;
     */
-    typedef struct config_vars {
+    struct configuration_variabless {
         // Bin Boundaries
         int bb0;
         int bb1;
@@ -163,8 +163,8 @@ namespace Opcn2Library
         void set_laser_power(uint8_t value);
         void toggle_fan(bool state);
         void toggle_laser(bool state);
-        struct hist_data histogram();
-        struct config_vars config();
+        //struct hist_data histogram();
+        config_vars config();
         String info_string();
 
         String firmware_version;
