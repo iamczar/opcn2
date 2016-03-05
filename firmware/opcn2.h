@@ -54,7 +54,7 @@ namespace Opcn2Library
         float pm10;
     } hist_data;
     */
-    struct configuration_variabless {
+    typedef struct {
         // Bin Boundaries
         int bb0;
         int bb1;
@@ -138,7 +138,7 @@ namespace Opcn2Library
 
         // Time of Flight to Sample Flow Rate Conversion Factor
         unsigned int tof_sfr;
-    } config_vars;
+    } ConfigurationVariables;
 
     class OPCN2
     {
@@ -164,7 +164,7 @@ namespace Opcn2Library
         void toggle_fan(bool state);
         void toggle_laser(bool state);
         //struct hist_data histogram();
-        struct config_vars config();
+        ConfigurationVariables config();
         String info_string();
 
         String firmware_version;
