@@ -2,7 +2,7 @@
   Run tests for the entire OPC-N2 library.
 */
 
-#include "opcn2.h"
+#include "opcn2/opcn2.h"
 
 #define CS A2
 
@@ -14,6 +14,7 @@ ConfigVars vars;
 ConfigVars2 vars2;
 
 void setup(){
+    delay(2000);
     Serial.begin(9600);
 
     // Test the Firmware methods
@@ -152,9 +153,18 @@ void setup(){
       Serial.print("\tPM10: "); Serial.println(pm.pm10);
     }
 
-    Serial.println("\n\nTests are now complete!");
+    Serial.println("\n\nTests are now complete!\n\n");
 }
 
 void loop(){
+  // If firmware >= v18, try just using the PM read
+  if ((alpha.firmware_version).toInt() >= 18){
+    delay(3000);
 
+    pm = alpha.read_pm_data();
+
+    Serial.print("\tPM1: "); Serial.println(pm.pm1);
+    Serial.print("\tPM1.5: "); Serial.println(pm.pm25);
+    Serial.print("\tPM10: "); Serial.println(pm.pm10);
+  }
 }

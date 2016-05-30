@@ -345,7 +345,7 @@ struct PMData OPCN2::read_pm_data(){
 
   // Read the data and clear the local memory
   digitalWrite(this->_CS, LOW);       // Pull the CS Low
-  SPI.transfer(0x43);                 // Transfer the command byte
+  SPI.transfer(0x32);                 // Transfer the command byte
   digitalWrite(this->_CS, HIGH);
 
   delay(12);                          // Delay for 12 ms

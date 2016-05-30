@@ -1,7 +1,7 @@
 /*
 */
 
-#include "opcn2.h"
+#include "opcn2/opcn2.h"
 
 #define CS A2
 
