@@ -99,7 +99,63 @@ bool OPCN2::off(){
     return this->_compare_arrays(vals, expected, 2);
 }
 
+struct status OPCN2::read_status(){
+  // Read key status variables from the OPC-N2
+  status data;      // Empty structure for return struct
+  byte vals[4];    // Empty array of bytes
+
+  // Read the status
+  digitalWrite(this->_CS, LOW);
+  SPI.transfer(0x13);
+  digitalWrite(this->_CS, HIGH);
+
+  delay(10);
+
+  // Send the read command and build the array of data
+  digitalWrite(this->_CS, LOW);
+  for (int i = 0; i < 4; i++){
+    vals[i] = SPI.transfer(0x13);
+    delayMicroseconds(4);
+  }
+
+  digitalWrite(this->_CS, HIGH);
+
+  // Calculate the values!
+  data.fanON    = (unsigned int)vals[0];
+  data.laserON  = (unsigned int)vals[1];
+  data.fanDAC   = (unsigned int)vals[2];
+  data.laserDAC = (unsigned int)vals[3];
+
+  return data;
+}
+
+struct firmware OPCN2::read_firmware_version(){
+  // Read the firmware version and return as a structure
+  result = firmware;
+
+  // Read the Firmware version
+  digitalWrite(this->_CS, LOW);
+  SPI.transfer(0x12);
+  digitalWrite(this->_CS, HIGH);
+
+  delay(10);
+
+  digitalWrite(this->_CS, LOW);
+  result.major = (unsigned int)SPI.transfer(0x12);
+  delayMicroseconds(4);
+  result.minor = (unsigned int)SPI.transfer(0x12);
+  digitalWrite(this->_CS, HIGH);
+
+  return result;
+}
+
 bool OPCN2::write_config_variables(byte values[]){
+    // Write the configuration [NOT IMPLEMENTED]
+
+    return true;
+}
+
+bool OPCN2::write_config_variables2(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
 
     return true;
@@ -282,9 +338,38 @@ struct HistogramData OPCN2::histogram(){
     return data;
 }
 
-struct ConfigurationVariables OPCN2::config(){
+struct PMData OPCN2::read_pm_data(){
+  // Read the PM Data and reset the histogram
+  PMData data;                 // Empty structure for data
+  byte vals[12];               // Empty array of type bytes
+
+  // Read the data and clear the local memory
+  digitalWrite(this->_CS, LOW);       // Pull the CS Low
+  SPI.transfer(0x43);                 // Transfer the command byte
+  digitalWrite(this->_CS, HIGH);
+
+  delay(12);                          // Delay for 12 ms
+
+  // Send commands and build array of data
+  digitalWrite(this->_CS, LOW);
+
+  for (int i = 0; i < 12; i++){
+      vals[i] = SPI.transfer(0x00);
+      delayMicroseconds(4);
+  }
+
+  digitalWrite(this->_CS, HIGH);      // Pull the CS High
+
+  data.pm1  = this->_calculate_float(vals[0], vals[1], vals[2], vals[3]);
+  data.pm25 = this->_calculate_float(vals[4], vals[5], vals[6], vals[7]);
+  data.pm10 = this->_calculate_float(vals[8], vals[9], vals[10], vals[11]);
+
+  return data;
+}
+
+struct ConfigVars OPCN2::config_vars(){
     // Read the config variables
-    ConfigurationVariables results;       // empty structure for the data
+    ConfigVars results;       // empty structure for the data
     byte vals[256];
 
     // Read the config variables
@@ -389,6 +474,36 @@ struct ConfigurationVariables OPCN2::config(){
     return results;
 }
 
+struct ConfigVars2 OPCN2::config_vars2(){
+    // Read the config variables
+    ConfigVars2 results;       // empty structure for the data
+    byte vals[9];
+
+    // Read the config variables
+    digitalWrite(this->_CS, LOW);
+    SPI.transfer(0x3D);
+    digitalWrite(this->_CS, HIGH);
+
+    delay(10);
+
+    digitalWrite(this->_CS, LOW);
+    for (int i = 0; i < 9; i++){
+        vals[i] = SPI.transfer(0x00);
+        delayMicroseconds(4);
+    }
+
+    digitalWrite(this->_CS, HIGH);
+
+    // Fill in the results
+    results.AMSamplingInterval    = this->_16bit_int(vals[0], vals[1]);
+    results.AMIntervalCount       = this->_16bit_int(vals[2], vals[3]);
+    results.AMFanOnIdle           = (unsigned int)vals[4];
+    results.AMLaserOnIdle         = (unsigned int)vals[5];
+    results.AMMaxDataArraysInFile = this->_16bit_int(vals[6], vals[7]);
+    results.AMOnlySavePMData      = (unsigned int)vals[8];
+
+    return results;
+}
 
 String OPCN2::info_string(){
     // Read the info String and return the firmware version
@@ -424,4 +539,42 @@ String OPCN2::info_string(){
     result = String(result).replace(".", "").trim().substring(23);
 
     return result;
+}
+
+String OPCN2::serial_number_string(){
+    String result = "";
+    String tmp;
+
+    // Return the SN string
+    byte vals[60];                      // dummy array of bytes
+
+    digitalWrite(this->_CS, LOW);       // Pull the CS low
+    SPI.transfer(0x10);                 // Send the start command
+    digitalWrite(this->_CS, HIGH);       // Pull the CS High
+
+    delay(3);
+
+    // Iterate to read the entire string
+    digitalWrite(this->_CS, LOW);
+    for (int i = 0; i < 61; i++){
+        vals[i] = SPI.transfer(0x00);
+        delayMicroseconds(4);
+
+    }
+
+    digitalWrite(this->_CS, HIGH);
+
+    // Convert the array of bytes into a String
+    for (int j = 0; j < 60; j++){
+        tmp = (char)vals[j];
+        result.concat(tmp);
+    }
+
+    return String(result);
+}
+
+bool OPCN2::write_serial_number_string(byte values[]){
+  // NOT IMPLEMENTED
+
+  return true;
 }

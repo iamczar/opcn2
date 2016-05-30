@@ -10,6 +10,18 @@
 // Includes
 #include "application.h"
 
+struct status {
+    int fanON;
+    int laserON;
+    int fanDAC;
+    int laserDAC;
+}
+
+struct firmware {
+    int major;
+    int minor;
+}
+
 struct HistogramData {
     int bin0;
     int bin1;
@@ -51,7 +63,13 @@ struct HistogramData {
     float pm10;
 };
 
-struct ConfigurationVariables {
+struct PMData {
+  float pm1;
+  float pm25;
+  float pm10;
+}
+
+struct ConfigVars {
     // Bin Boundaries
     int bb0;
     int bb1;
@@ -137,6 +155,15 @@ struct ConfigurationVariables {
     unsigned int tof_sfr;
 };
 
+struct ConfigVars2 {
+  int AMSamplingInterval;
+  int AMIntervalCount;
+  int AMFanOnIdle;
+  int AMLaserOnIdle;
+  int AMMaxDataArraysInFile;
+  int AMOnlySavePMData;
+}
+
 class OPCN2
 {
 private:
@@ -154,6 +181,8 @@ public:
     bool on();
     bool off();
     bool write_config_variables(byte values[]);
+    bool write_config_variables2(byte values[]);
+    bool write_serial_number_string(byte values[]);
     bool save_config_variables();
     void enter_bootloader();
     void set_fan_power(uint8_t value);
@@ -161,10 +190,16 @@ public:
     void toggle_fan(bool state);
     void toggle_laser(bool state);
 
-    HistogramData histogram();
-    ConfigurationVariables config();
-    String info_string();
+    firmware read_firmware_version();
 
+    status read_status();
+    HistogramData histogram();
+    PMData read_pm_data();
+    ConfigVars config_vars();
+    ConfigVars2 config_vars_2();
+
+    String info_string();
+    String serial_number_string;
     String firmware_version;
 };
 
