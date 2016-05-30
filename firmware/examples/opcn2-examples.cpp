@@ -1,13 +1,13 @@
 /*
 */
 
-#include "opcn2/opcn2.h"
+#include "opcn2.h"
 
 #define CS A2
 
 OPCN2 alpha(CS);
 HistogramData hist;
-ConfigurationVariables vars;
+ConfigVars vars;
 
 void setup(){
     Serial.begin(9600);
@@ -16,7 +16,7 @@ void setup(){
     Serial.println(alpha.firmware_version);
 
     // Read and print the configuration variables
-    vars = alpha.config();
+    vars = alpha.config_vars();
 
     Serial.println("\nConfiguration Variables");
     Serial.print("\tGSC:\t"); Serial.println(vars.gsc);

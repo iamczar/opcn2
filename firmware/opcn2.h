@@ -15,12 +15,12 @@ struct status {
     int laserON;
     int fanDAC;
     int laserDAC;
-}
+};
 
 struct firmware {
     int major;
     int minor;
-}
+};
 
 struct HistogramData {
     int bin0;
@@ -67,7 +67,7 @@ struct PMData {
   float pm1;
   float pm25;
   float pm10;
-}
+};
 
 struct ConfigVars {
     // Bin Boundaries
@@ -162,7 +162,7 @@ struct ConfigVars2 {
   int AMLaserOnIdle;
   int AMMaxDataArraysInFile;
   int AMOnlySavePMData;
-}
+};
 
 class OPCN2
 {
@@ -196,10 +196,10 @@ public:
     HistogramData histogram();
     PMData read_pm_data();
     ConfigVars config_vars();
-    ConfigVars2 config_vars_2();
+    ConfigVars2 config_vars2();
 
     String info_string();
-    String serial_number_string;
+    String serial_number_string();
     String firmware_version;
 };
 
