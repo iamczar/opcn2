@@ -131,7 +131,7 @@ struct status OPCN2::read_status(){
 
 struct firmware OPCN2::read_firmware_version(){
   // Read the firmware version and return as a structure
-  result = firmware;
+  firmware res;
 
   // Read the Firmware version
   digitalWrite(this->_CS, LOW);
@@ -141,12 +141,12 @@ struct firmware OPCN2::read_firmware_version(){
   delay(10);
 
   digitalWrite(this->_CS, LOW);
-  result.major = (unsigned int)SPI.transfer(0x12);
+  res.major = (unsigned int)SPI.transfer(0x12);
   delayMicroseconds(4);
-  result.minor = (unsigned int)SPI.transfer(0x12);
+  res.minor = (unsigned int)SPI.transfer(0x12);
   digitalWrite(this->_CS, HIGH);
 
-  return result;
+  return res;
 }
 
 bool OPCN2::write_config_variables(byte values[]){
