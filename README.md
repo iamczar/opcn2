@@ -8,7 +8,10 @@ makes it easy to operate the OPC-N2 from a Particle Photon, Particle Electron, o
 
 # Example Usage
 
-See the examples folder.
+Two examples are located in the examples folder.
+
+  1. opcn2-examples.cpp: Normal Example Run File
+  2. tests.cpp: Runs through a solid portion of the methods and prints the results to the console.
 
 # Recommended Components
 
