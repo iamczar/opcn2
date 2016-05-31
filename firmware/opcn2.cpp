@@ -536,7 +536,7 @@ String OPCN2::info_string(){
     }
 
     // Isolate just the Firmware version
-    result = String(result).replace(".", "").trim().substring(23);
+    result = String(result).replace(".", "").trim().substring(24, 26);
 
     return result;
 }
