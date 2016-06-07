@@ -137,7 +137,7 @@ String OPCN2::read_information_string(){
 struct Status OPCN2::read_status(){
   // Read key status variables from the OPC-N2
   // Only available with Alphasense OPC-N2 > firmware v18
-  status data;
+  Status data;
   byte vals[4];
 
   if (this->firm_ver.major < 18) {
