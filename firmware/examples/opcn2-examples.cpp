@@ -1,4 +1,9 @@
 /*
+  This is a very basic example that sets up the Alphasense OPC-N2, turns it on,
+  and reads the histogram at 0.2 Hz. For a more detailed explanation, check out
+  the full documentation.
+
+  Written by David H Hagan, June 2016
 */
 
 #include "opcn2/opcn2.h"
@@ -12,11 +17,10 @@ ConfigVars vars;
 void setup(){
     Serial.begin(9600);
 
-    Serial.print("Testing OPC-N2 v");
-    Serial.println(alpha.firmware_version);
+    Serial.println("Testing OPC-N2 v" + String(alpha.firm_ver.major) + "." + String(alpha.firm_ver.minor));
 
     // Read and print the configuration variables
-    vars = alpha.config_vars();
+    vars = alpha.read_configuration_variables();
 
     Serial.println("\nConfiguration Variables");
     Serial.print("\tGSC:\t"); Serial.println(vars.gsc);
@@ -25,20 +29,20 @@ void setup(){
     Serial.print("\tFan DAC:\t"); Serial.println(vars.fan_dac);
     Serial.print("\tToF-SFR:\t"); Serial.println(vars.tof_sfr);
 
+    // Turn on the OPC
     alpha.on();
     delay(1000);
 }
 
 void loop(){
 
-    delay(3000);
+    delay(5000);
 
-    hist = alpha.histogram();
+    hist = alpha.read_histogram();
 
     // Print out the histogram data
     Serial.print("\nSampling Period:\t"); Serial.println(hist.period);
     Serial.print("PM1: "); Serial.println(hist.pm1);
     Serial.print("PM2.5: "); Serial.println(hist.pm25);
     Serial.print("PM10: "); Serial.println(hist.pm10);
-
 }

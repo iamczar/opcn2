@@ -10,14 +10,14 @@
 // Includes
 #include "application.h"
 
-struct status {
+struct Status {
     int fanON;
     int laserON;
     int fanDAC;
     int laserDAC;
 };
 
-struct firmware {
+struct Firmware {
     int major;
     int minor;
 };
@@ -167,8 +167,11 @@ struct ConfigVars2 {
 class OPCN2
 {
 private:
+    // attributes
     uint8_t _CS;
+    int _fv;
 
+    // methods
     uint16_t _16bit_int(byte MSB, byte LSB);
     bool _compare_arrays(byte array1[], byte array2[], int length);
     float _calculate_float(byte val0, byte val1, byte val2, byte val3);
@@ -177,6 +180,10 @@ private:
 public:
     OPCN2(uint8_t chip_select);
 
+    // attributes
+    Firmware firm_ver;
+
+    // methods
     bool ping();
     bool on();
     bool off();
@@ -184,23 +191,20 @@ public:
     bool write_config_variables2(byte values[]);
     bool write_serial_number_string(byte values[]);
     bool save_config_variables();
-    void enter_bootloader();
-    void set_fan_power(uint8_t value);
-    void set_laser_power(uint8_t value);
-    void toggle_fan(bool state);
-    void toggle_laser(bool state);
+    bool enter_bootloader();
+    bool set_fan_power(uint8_t value);
+    bool set_laser_power(uint8_t value);
+    bool toggle_fan(bool state);
+    bool toggle_laser(bool state);
 
-    firmware read_firmware_version();
-
-    status read_status();
-    HistogramData histogram();
+    String read_information_string();
+    String read_serial_number();
+    Firmware read_firmware_version();
+    Status read_status();
+    ConfigVars read_configuration_variables();
+    ConfigVars2 read_configuration_variables2();
     PMData read_pm_data();
-    ConfigVars config_vars();
-    ConfigVars2 config_vars2();
-
-    String info_string();
-    String serial_number_string();
-    String firmware_version;
+    HistogramData read_histogram();
 };
 
 #endif
