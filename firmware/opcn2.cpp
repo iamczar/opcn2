@@ -9,8 +9,19 @@ OPCN2::OPCN2(uint8_t chip_select){
     SPI.setDataMode(SPI_MODE1);
     SPI.setClockSpeed(1000000);
 
-    // Set the firmware version by reading the info String
-    firmware_version = this->info_string();
+    // Set the firmware version
+    _fv = this->read_information_string().replace(".", "").trim().substring(24, 26).toInt();
+
+    if (_fv < 18) {
+      firm_ver.major = _fv;
+      firm_ver.minor = 0;
+    }
+    else {
+      Firmware tmp = this->read_firmware_version();
+
+      firm_ver.major = tmp.major;
+      firm_ver.minor = tmp.minor;
+    }
 }
 
 uint16_t OPCN2::_16bit_int(byte LSB, byte MSB){
@@ -99,52 +110,91 @@ bool OPCN2::off(){
     return this->_compare_arrays(vals, expected, 2);
 }
 
-struct status OPCN2::read_status(){
+String OPCN2::read_information_string(){
+    String result = "";
+    String tmp;
+    byte vals[61];
+
+    digitalWrite(this->_CS, LOW);
+    SPI.transfer(0x3F);
+    digitalWrite(this->_CS, HIGH);
+
+    delay(3);
+
+    // Iterate to read the entire string
+    digitalWrite(this->_CS, LOW);
+    for (int i = 0; i < 60; i++){
+        vals[i] = SPI.transfer(0x00);
+        result += String((char)vals[i]);
+        delayMicroseconds(4);
+    }
+
+    digitalWrite(this->_CS, HIGH);
+
+    return result;
+}
+
+struct Status OPCN2::read_status(){
   // Read key status variables from the OPC-N2
-  status data;      // Empty structure for return struct
-  byte vals[4];    // Empty array of bytes
+  // Only available with Alphasense OPC-N2 > firmware v18
+  status data;
+  byte vals[4];
 
-  // Read the status
-  digitalWrite(this->_CS, LOW);
-  SPI.transfer(0x13);
-  digitalWrite(this->_CS, HIGH);
-
-  delay(10);
-
-  // Send the read command and build the array of data
-  digitalWrite(this->_CS, LOW);
-  for (int i = 0; i < 4; i++){
-    vals[i] = SPI.transfer(0x13);
-    delayMicroseconds(4);
+  if (this->firm_ver.major < 18) {
+    data.fanON    = -999;
+    data.laserON  = -999;
+    data.fanDAC   = -999;
+    data.laserDAC = -999;
   }
+  else {
+    // Read the status
+    digitalWrite(this->_CS, LOW);
+    SPI.transfer(0x13);
+    digitalWrite(this->_CS, HIGH);
 
-  digitalWrite(this->_CS, HIGH);
+    delay(10);
 
-  // Calculate the values!
-  data.fanON    = (unsigned int)vals[0];
-  data.laserON  = (unsigned int)vals[1];
-  data.fanDAC   = (unsigned int)vals[2];
-  data.laserDAC = (unsigned int)vals[3];
+    // Send the read command and build the array of data
+    digitalWrite(this->_CS, LOW);
+    for (int i = 0; i < 4; i++){
+      vals[i] = SPI.transfer(0x13);
+      delayMicroseconds(4);
+    }
+
+    digitalWrite(this->_CS, HIGH);
+
+    // Calculate the values!
+    data.fanON    = (unsigned int)vals[0];
+    data.laserON  = (unsigned int)vals[1];
+    data.fanDAC   = (unsigned int)vals[2];
+    data.laserDAC = (unsigned int)vals[3];
+  }
 
   return data;
 }
 
-struct firmware OPCN2::read_firmware_version(){
-  // Read the firmware version and return as a structure
-  firmware res;
+struct Firmware OPCN2::read_firmware_version(){
+  // Only available with Alphasense OPC-N2 > firmware v18
+  Firmware res;
 
-  // Read the Firmware version
-  digitalWrite(this->_CS, LOW);
-  SPI.transfer(0x12);
-  digitalWrite(this->_CS, HIGH);
+  if (this->firm_ver.major < 18) {
+    res.major = -999;
+    res.minor = -999;
+  }
+  else {
+    // Read the Firmware version
+    digitalWrite(this->_CS, LOW);
+    SPI.transfer(0x12);
+    digitalWrite(this->_CS, HIGH);
 
-  delay(10);
+    delay(10);
 
-  digitalWrite(this->_CS, LOW);
-  res.major = (unsigned int)SPI.transfer(0x12);
-  delayMicroseconds(4);
-  res.minor = (unsigned int)SPI.transfer(0x12);
-  digitalWrite(this->_CS, HIGH);
+    digitalWrite(this->_CS, LOW);
+    res.major = (unsigned int)SPI.transfer(0x00);
+    delayMicroseconds(4);
+    res.minor = (unsigned int)SPI.transfer(0x00);
+    digitalWrite(this->_CS, HIGH);
+  }
 
   return res;
 }
@@ -157,25 +207,34 @@ bool OPCN2::write_config_variables(byte values[]){
 
 bool OPCN2::write_config_variables2(byte values[]){
     // Write the configuration [NOT IMPLEMENTED]
+    // Only available with Alphasense OPC-N2 > firmware v18
 
     return true;
+}
+
+bool OPCN2::write_serial_number_string(byte values[]){
+  // NOT IMPLEMENTED
+  // Only available with Alphasense OPC-N2 > firmware v18
+
+
+  return true;
 }
 
 bool OPCN2::save_config_variables(){
     // Save the config variables
     byte resp[6];
-    byte commands[] = {0x3F, 0x3C, 0x3F, 0x3C, 0x43};
+    byte commands[] = {0x43, 0x3F, 0x3C, 0x3F, 0x3C, 0x43};
     byte expected[] = {0xF3, 0x43, 0x3f, 0x3c, 0x3f, 0x3c};
 
     digitalWrite(this->_CS, LOW);
-    resp[0] = SPI.transfer(0x43);
+    resp[0] = SPI.transfer(commands[0]);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
-    for (int i = 0; i < 5; i++){
-        resp[i + 1] = SPI.transfer(commands[i]);
+    for (int i = 1; i < (int)sizeof(commands); i++){
+        resp[i] = SPI.transfer(commands[i]);
         delayMicroseconds(4);
     }
 
@@ -184,58 +243,65 @@ bool OPCN2::save_config_variables(){
     return this->_compare_arrays(resp, expected, 6);
 }
 
-void OPCN2::enter_bootloader(){
-    // Enter bootloader mode
+bool OPCN2::enter_bootloader(){
+    byte resp[1];
+    byte expected[] = {0xF3};
+
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x41);
+    resp[0] = SPI.transfer(0x41);
     digitalWrite(this->_CS, HIGH);
 
-    return;
+    return this->_compare_arrays(resp, expected, 1);
 }
 
-void OPCN2::set_fan_power(uint8_t value){
-    // Set the Fan Power
+bool OPCN2::set_fan_power(uint8_t value){
+    byte resp[3];
+    byte expected[] = {0xF3, 0x42, 0x00};
 
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x42);
+    resp[0] = SPI.transfer(0x42);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x00);
+    resp[1] = SPI.transfer(0x00);
 
     delayMicroseconds(4);
 
-    SPI.transfer(value);
+    resp[2] = SPI.transfer(value);
     digitalWrite(this->_CS, HIGH);
 
-    return;
+    return this->_compare_arrays(resp, expected, 3);
 }
 
-void OPCN2::set_laser_power(uint8_t value){
-    // Set the Laser Power
+bool OPCN2::set_laser_power(uint8_t value){
+    byte resp[3];
+    byte expected[] = {0xF3, 0x42, 0x01};
+
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x42);
+    resp[0] = SPI.transfer(0x42);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x01);
+    resp[1] = SPI.transfer(0x01);
 
     delayMicroseconds(4);
 
-    SPI.transfer(value);
+    resp[2] = SPI.transfer(value);
     digitalWrite(this->_CS, HIGH);
 
-    return;
+    return this->_compare_arrays(resp, expected, 3);
 }
 
-void OPCN2::toggle_fan(bool state){
-    // Toggle the power state of the fan
+bool OPCN2::toggle_fan(bool state){
+    byte resp[2];
+    byte expected[] = {0xF3, 0x03};
+
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x03);
+    resp[0] = SPI.transfer(0x03);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
@@ -243,132 +309,41 @@ void OPCN2::toggle_fan(bool state){
     // turn either on or off
     digitalWrite(this->_CS, LOW);
     if (state == true){
-        SPI.transfer(0x04);
+        resp[1] = SPI.transfer(0x04);
     }
     else {
-        SPI.transfer(0x05);
+        resp[1] = SPI.transfer(0x05);
     }
 
     digitalWrite(this->_CS, HIGH);
 
-    return;
+    return this->_compare_arrays(resp, expected, 2);
 }
 
-void OPCN2::toggle_laser(bool state){
-    // Toggle the power state of the laser
+bool OPCN2::toggle_laser(bool state){
+    byte resp[2];
+    byte expected[] = {0xF3, 0x03};
+
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x03);
+    resp[0] = SPI.transfer(0x03);
     digitalWrite(this->_CS, HIGH);
 
     delay(10);
 
     digitalWrite(this->_CS, LOW);
     if (state == true){
-        SPI.transfer(0x02);
+        resp[1] = SPI.transfer(0x02);
     }
     else {
-        SPI.transfer(0x03);
+        resp[1] = SPI.transfer(0x03);
     }
 
     digitalWrite(this->_CS, HIGH);
 
-    return;
+    return this->_compare_arrays(resp, expected, 2);
 }
 
-struct HistogramData OPCN2::histogram(){
-    // Read the histogram
-    HistogramData data;                 // Empty structure for data
-    byte vals[62];                      // Empty array of type bytes
-
-    // Read the data and clear the local memory
-    digitalWrite(this->_CS, LOW);       // Pull the CS Low
-    SPI.transfer(0x30);                 // Transfer the command byte
-    digitalWrite(this->_CS, HIGH);
-
-    delay(12);                          // Delay for 12 ms
-
-    // Send commands and build array of data
-    digitalWrite(this->_CS, LOW);
-
-    for (int i = 0; i < 62; i++){
-        vals[i] = SPI.transfer(0x30);
-        delayMicroseconds(4);
-    }
-
-    digitalWrite(this->_CS, HIGH);      // Pull the CS High
-
-    // Calculate all of the values!
-    data.bin0 = this->_16bit_int(vals[0], vals[1]);
-    data.bin1 = this->_16bit_int(vals[2], vals[3]);
-    data.bin2 = this->_16bit_int(vals[4], vals[5]);
-    data.bin3 = this->_16bit_int(vals[6], vals[7]);
-    data.bin4 = this->_16bit_int(vals[8], vals[9]);
-    data.bin5 = this->_16bit_int(vals[10], vals[11]);
-    data.bin6 = this->_16bit_int(vals[12], vals[13]);
-    data.bin7 = this->_16bit_int(vals[14], vals[15]);
-    data.bin8 = this->_16bit_int(vals[16], vals[17]);
-    data.bin9 = this->_16bit_int(vals[18], vals[19]);
-    data.bin10 = this->_16bit_int(vals[20], vals[21]);
-    data.bin11 = this->_16bit_int(vals[22], vals[23]);
-    data.bin12 = this->_16bit_int(vals[24], vals[25]);
-    data.bin13 = this->_16bit_int(vals[26], vals[27]);
-    data.bin14 = this->_16bit_int(vals[28], vals[29]);
-    data.bin15 = this->_16bit_int(vals[30], vals[31]);
-
-    data.bin1MToF = int(vals[32]) / 3.0;
-    data.bin3MToF = int(vals[33]) / 3.0;
-    data.bin5MToF = int(vals[34]) / 3.0;
-    data.bin7MToF = int(vals[35]) / 3.0;
-
-    data.sfr = this->_calculate_float(vals[36], vals[37], vals[38], vals[39]);
-
-    // This holds either temperature or pressure
-    // If temp, this is temp in C x 10
-    // If pressure, this is pressure in Pa
-    data.temp_pressure = this->_32bit_int(vals[40], vals[41], vals[42], vals[43]);
-
-    data.period = this->_calculate_float(vals[44], vals[45], vals[46], vals[47]);
-
-    data.checksum = this->_16bit_int(vals[48], vals[49]);
-
-    data.pm1 = this->_calculate_float(vals[50], vals[51], vals[52], vals[53]);
-    data.pm25 = this->_calculate_float(vals[54], vals[55], vals[56], vals[57]);
-    data.pm10 = this->_calculate_float(vals[58], vals[59], vals[60], vals[61]);
-
-    return data;
-}
-
-struct PMData OPCN2::read_pm_data(){
-  // Read the PM Data and reset the histogram
-  PMData data;                 // Empty structure for data
-  byte vals[12];               // Empty array of type bytes
-
-  // Read the data and clear the local memory
-  digitalWrite(this->_CS, LOW);       // Pull the CS Low
-  SPI.transfer(0x32);                 // Transfer the command byte
-  digitalWrite(this->_CS, HIGH);
-
-  delay(12);                          // Delay for 12 ms
-
-  // Send commands and build array of data
-  digitalWrite(this->_CS, LOW);
-
-  for (int i = 0; i < 12; i++){
-      vals[i] = SPI.transfer(0x00);
-      delayMicroseconds(4);
-  }
-
-  digitalWrite(this->_CS, HIGH);      // Pull the CS High
-
-  data.pm1  = this->_calculate_float(vals[0], vals[1], vals[2], vals[3]);
-  data.pm25 = this->_calculate_float(vals[4], vals[5], vals[6], vals[7]);
-  data.pm10 = this->_calculate_float(vals[8], vals[9], vals[10], vals[11]);
-
-  return data;
-}
-
-struct ConfigVars OPCN2::config_vars(){
-    // Read the config variables
+struct ConfigVars OPCN2::read_configuration_variables(){
     ConfigVars results;       // empty structure for the data
     byte vals[256];
 
@@ -474,107 +449,170 @@ struct ConfigVars OPCN2::config_vars(){
     return results;
 }
 
-struct ConfigVars2 OPCN2::config_vars2(){
-    // Read the config variables
+struct ConfigVars2 OPCN2::read_configuration_variables2(){
     ConfigVars2 results;       // empty structure for the data
     byte vals[9];
 
-    // Read the config variables
-    digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x3D);
-    digitalWrite(this->_CS, HIGH);
-
-    delay(10);
-
-    digitalWrite(this->_CS, LOW);
-    for (int i = 0; i < 9; i++){
-        vals[i] = SPI.transfer(0x00);
-        delayMicroseconds(4);
+    if (this->firm_ver.major < 18) {
+        results.AMSamplingInterval    = -999;
+        results.AMIntervalCount       = -999;
+        results.AMFanOnIdle           = -999;
+        results.AMLaserOnIdle         = -999;
+        results.AMMaxDataArraysInFile = -999;
+        results.AMOnlySavePMData      = -999;
     }
+    else {
+        // Read the config variables
+        digitalWrite(this->_CS, LOW);
+        SPI.transfer(0x3D);
+        digitalWrite(this->_CS, HIGH);
 
-    digitalWrite(this->_CS, HIGH);
+        delay(10);
 
-    // Fill in the results
-    results.AMSamplingInterval    = this->_16bit_int(vals[0], vals[1]);
-    results.AMIntervalCount       = this->_16bit_int(vals[2], vals[3]);
-    results.AMFanOnIdle           = (unsigned int)vals[4];
-    results.AMLaserOnIdle         = (unsigned int)vals[5];
-    results.AMMaxDataArraysInFile = this->_16bit_int(vals[6], vals[7]);
-    results.AMOnlySavePMData      = (unsigned int)vals[8];
+        digitalWrite(this->_CS, LOW);
+        for (int i = 0; i < 9; i++){
+            vals[i] = SPI.transfer(0x00);
+            delayMicroseconds(4);
+        }
+
+        digitalWrite(this->_CS, HIGH);
+
+        // Fill in the results
+        results.AMSamplingInterval    = this->_16bit_int(vals[0], vals[1]);
+        results.AMIntervalCount       = this->_16bit_int(vals[2], vals[3]);
+        results.AMFanOnIdle           = (unsigned int)vals[4];
+        results.AMLaserOnIdle         = (unsigned int)vals[5];
+        results.AMMaxDataArraysInFile = this->_16bit_int(vals[6], vals[7]);
+        results.AMOnlySavePMData      = (unsigned int)vals[8];
+    }
 
     return results;
 }
 
-String OPCN2::info_string(){
-    // Read the info String and return the firmware version
+String OPCN2::read_serial_number(){
     String result = "";
-    String tmp;
+    byte vals[60];
 
-    // Return the information string
-    byte vals[61];                      // dummy array of bytes
+    if (this->firm_ver.major < 18) {
+        result = "";
+    }
+    else {
+        digitalWrite(this->_CS, LOW);       // Pull the CS low
+        SPI.transfer(0x10);                 // Send the start command
+        digitalWrite(this->_CS, HIGH);       // Pull the CS High
 
-    digitalWrite(this->_CS, LOW);       // Pull the CS low
-    SPI.transfer(0x3F);                 // Send the start command
-    digitalWrite(this->_CS, HIGH);       // Pull the CS High
+        delay(3);
 
-    delay(3);
+        // Iterate to read the entire string
+        digitalWrite(this->_CS, LOW);
+        for (int i = 0; i < 61; i++){
+            vals[i] = SPI.transfer(0x00);
+            result += String((char)vals[i])
+            delayMicroseconds(4);
+        }
 
-    // Iterate to read the entire string
-    digitalWrite(this->_CS, LOW);
-    for (int i = 0; i < 61; i++){
-        vals[i] = SPI.transfer(0x00);
-        delayMicroseconds(4);
-
+        digitalWrite(this->_CS, HIGH);
     }
 
-    digitalWrite(this->_CS, HIGH);      // Pull the CS pin high again
-
-    // Convert the array of bytes into a String
-    for (int j = 0; j < 58; j++){
-        tmp = (char)vals[j];
-        result.concat(tmp);
-    }
-
-    // Isolate just the Firmware version
-    result = String(result).replace(".", "").trim().substring(24, 26);
+    result = result.trim();
 
     return result;
 }
 
-String OPCN2::serial_number_string(){
-    String result = "";
-    String tmp;
+struct PMData OPCN2::read_pm_data(){
+  // Read the PM Data and reset the histogram
+  PMData data;
+  byte vals[12];
 
-    // Return the SN string
-    byte vals[60];                      // dummy array of bytes
+  if (this->_firm_ver.major < 18) {
+      data.pm1  = -999;
+      data.pm25 = -999;
+      data.pm10 = -999;
+  }
+  else {
+      // Read the data and clear the local memory
+      digitalWrite(this->_CS, LOW);       // Pull the CS Low
+      SPI.transfer(0x32);                 // Transfer the command byte
+      digitalWrite(this->_CS, HIGH);
 
-    digitalWrite(this->_CS, LOW);       // Pull the CS low
-    SPI.transfer(0x10);                 // Send the start command
-    digitalWrite(this->_CS, HIGH);       // Pull the CS High
+      delay(12);                          // Delay for 12 ms
 
-    delay(3);
+      // Send commands and build array of data
+      digitalWrite(this->_CS, LOW);
 
-    // Iterate to read the entire string
-    digitalWrite(this->_CS, LOW);
-    for (int i = 0; i < 61; i++){
-        vals[i] = SPI.transfer(0x00);
-        delayMicroseconds(4);
+      for (int i = 0; i < 12; i++){
+          vals[i] = SPI.transfer(0x00);
+          delayMicroseconds(4);
+      }
 
-    }
+      digitalWrite(this->_CS, HIGH);      // Pull the CS High
 
-    digitalWrite(this->_CS, HIGH);
+      data.pm1  = this->_calculate_float(vals[0], vals[1], vals[2], vals[3]);
+      data.pm25 = this->_calculate_float(vals[4], vals[5], vals[6], vals[7]);
+      data.pm10 = this->_calculate_float(vals[8], vals[9], vals[10], vals[11]);
+  }
 
-    // Convert the array of bytes into a String
-    for (int j = 0; j < 60; j++){
-        tmp = (char)vals[j];
-        result.concat(tmp);
-    }
-
-    return String(result);
+  return data;
 }
 
-bool OPCN2::write_serial_number_string(byte values[]){
-  // NOT IMPLEMENTED
+struct HistogramData OPCN2::read_histogram(){
+    HistogramData data;
+    byte vals[62];
 
-  return true;
+    // Read the data and clear the local memory
+    digitalWrite(this->_CS, LOW);       // Pull the CS Low
+    SPI.transfer(0x30);                 // Transfer the command byte
+    digitalWrite(this->_CS, HIGH);
+
+    delay(12);                          // Delay for 12 ms
+
+    // Send commands and build array of data
+    digitalWrite(this->_CS, LOW);
+
+    for (int i = 0; i < 62; i++){
+        vals[i] = SPI.transfer(0x00);
+        delayMicroseconds(4);
+    }
+
+    digitalWrite(this->_CS, HIGH);      // Pull the CS High
+
+    // Calculate all of the values!
+    data.bin0 = this->_16bit_int(vals[0], vals[1]);
+    data.bin1 = this->_16bit_int(vals[2], vals[3]);
+    data.bin2 = this->_16bit_int(vals[4], vals[5]);
+    data.bin3 = this->_16bit_int(vals[6], vals[7]);
+    data.bin4 = this->_16bit_int(vals[8], vals[9]);
+    data.bin5 = this->_16bit_int(vals[10], vals[11]);
+    data.bin6 = this->_16bit_int(vals[12], vals[13]);
+    data.bin7 = this->_16bit_int(vals[14], vals[15]);
+    data.bin8 = this->_16bit_int(vals[16], vals[17]);
+    data.bin9 = this->_16bit_int(vals[18], vals[19]);
+    data.bin10 = this->_16bit_int(vals[20], vals[21]);
+    data.bin11 = this->_16bit_int(vals[22], vals[23]);
+    data.bin12 = this->_16bit_int(vals[24], vals[25]);
+    data.bin13 = this->_16bit_int(vals[26], vals[27]);
+    data.bin14 = this->_16bit_int(vals[28], vals[29]);
+    data.bin15 = this->_16bit_int(vals[30], vals[31]);
+
+    data.bin1MToF = int(vals[32]) / 3.0;
+    data.bin3MToF = int(vals[33]) / 3.0;
+    data.bin5MToF = int(vals[34]) / 3.0;
+    data.bin7MToF = int(vals[35]) / 3.0;
+
+    data.sfr = this->_calculate_float(vals[36], vals[37], vals[38], vals[39]);
+
+    // This holds either temperature or pressure
+    // If temp, this is temp in C x 10
+    // If pressure, this is pressure in Pa
+    data.temp_pressure = this->_32bit_int(vals[40], vals[41], vals[42], vals[43]);
+
+    data.period = this->_calculate_float(vals[44], vals[45], vals[46], vals[47]);
+
+    data.checksum = this->_16bit_int(vals[48], vals[49]);
+
+    data.pm1 = this->_calculate_float(vals[50], vals[51], vals[52], vals[53]);
+    data.pm25 = this->_calculate_float(vals[54], vals[55], vals[56], vals[57]);
+    data.pm10 = this->_calculate_float(vals[58], vals[59], vals[60], vals[61]);
+
+    return data;
 }

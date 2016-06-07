@@ -21,20 +21,20 @@ void setup(){
     Serial.println("Testing Firmware Methods");
 
     // Test the Info String
-    Serial.print("\t.info_string: ");
-    Serial.println(alpha.info_string());
+    Serial.print("\t.read_information_string()");
+    Serial.println("\t" + alpha.read_information_string());
 
-    if ((alpha.firmware_version).toInt() >= 18){
-      Serial.print("\t.read_firmware_version: ");
+    if (alpha.firm_ver.major >= 18){
+      Serial.print("\t.read_firmware_version()");
+      Firmware tmp = alpha.read_firmware_version();
 
-      Serial.println(alpha.read_firmware_version().major);
-      Serial.println(alpha.read_firmware_version().minor);
+      Serial.println("\tv" + String(tmp.major) + "." + String(tmp.minor));
     }
 
     // Read and print the configuration variables
-    vars  = alpha.config_vars();
+    vars  = alpha.read_configuration_variables();
 
-    Serial.println("\nConfiguration Variables");
+    Serial.println("\n.read_configuration_variables()");
     Serial.print("\tbb0: "); Serial.println(vars.bb0);
     Serial.print("\tbb1: "); Serial.println(vars.bb1);
     Serial.print("\tbb2: "); Serial.println(vars.bb2);
@@ -91,9 +91,10 @@ void setup(){
     Serial.print("\tFan DAC: "); Serial.println(vars.fan_dac);
     Serial.print("\tToF-SFR: "); Serial.println(vars.tof_sfr);
 
-    if ((alpha.firmware_version).toInt() >= 18){
-      vars2 = alpha.config_vars2();
+    if (alpha.firm_ver.major >= 18){
+      vars2 = alpha.read_configuration_variables2();
 
+      Serial.println(".read_configuration_variables2()");
       Serial.print("\tAMSamplingInterval: "); Serial.println(vars2.AMSamplingInterval);
       Serial.print("\tAMIntervalCount: "); Serial.println(vars2.AMIntervalCount);
       Serial.print("\tAMFanOnIdle: "); Serial.println(vars2.AMFanOnIdle);
@@ -103,14 +104,15 @@ void setup(){
     }
 
     // Turn on the fan
-    alpha.on();
+    Serial.println(".on()");
+    Serial.println("\t" + String(alpha.on()));
 
     // Wait for a bit
     delay(3000);
 
-    Serial.println("\nRead the data using the .histogram method");
+    Serial.println("\n.read_histogram()");
 
-    hist = alpha.histogram();
+    hist = alpha.read_histogram();
 
     Serial.print("\tSampling Period: "); Serial.println(hist.period);
     Serial.print("\tSample Flow Rate: "); Serial.println(hist.sfr);
@@ -142,23 +144,31 @@ void setup(){
     Serial.print("\tPM1: "); Serial.println(hist.pm10);
 
     // If firmware >= v18, try just using the PM read
-    if ((alpha.firmware_version).toInt() >= 18){
+    if (alpha.firm_ver.major >= 18){
       delay(3000);
 
       pm = alpha.read_pm_data();
 
-      Serial.println("\nTry reading PM using the .read_pm_data method");
+      Serial.println("\n.read_pm_data()");
       Serial.print("\tPM1: "); Serial.println(pm.pm1);
       Serial.print("\tPM1.5: "); Serial.println(pm.pm25);
       Serial.print("\tPM10: "); Serial.println(pm.pm10);
     }
 
+    Serial.println(".ping()");
+    Serial.println("\t" + String(alpha.ping()));
+
+    Serial.println(".off()");
+    Serial.println("\t" + String(alpha.off()));
+
     Serial.println("\n\nTests are now complete!\n\n");
+
+
 }
 
 void loop(){
   // If firmware >= v18, try just using the PM read
-  if ((alpha.firmware_version).toInt() >= 18){
+  if (alpha.firm_ver.major >= 18){
     delay(3000);
 
     pm = alpha.read_pm_data();
