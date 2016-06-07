@@ -507,7 +507,7 @@ String OPCN2::read_serial_number(){
         digitalWrite(this->_CS, LOW);
         for (int i = 0; i < 61; i++){
             vals[i] = SPI.transfer(0x00);
-            result += String((char)vals[i])
+            result += String((char)vals[i]);
             delayMicroseconds(4);
         }
 
@@ -524,7 +524,7 @@ struct PMData OPCN2::read_pm_data(){
   PMData data;
   byte vals[12];
 
-  if (this->_firm_ver.major < 18) {
+  if (this->firm_ver.major < 18) {
       data.pm1  = -999;
       data.pm25 = -999;
       data.pm10 = -999;
