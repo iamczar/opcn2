@@ -17,6 +17,7 @@ OPCN2::OPCN2(uint8_t chip_select){
       firm_ver.minor = 0;
     }
     else {
+      firm_ver.major = 99;    // only temporarily...
       Firmware tmp = this->read_firmware_version();
 
       firm_ver.major = tmp.major;
