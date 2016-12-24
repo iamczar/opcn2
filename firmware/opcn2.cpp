@@ -556,7 +556,7 @@ struct PMData OPCN2::read_pm_data(){
   return data;
 }
 
-struct HistogramData OPCN2::read_histogram(){
+struct HistogramData OPCN2::read_histogram(bool convert_to_conc){
     HistogramData data;
     byte vals[62];
 
@@ -577,37 +577,46 @@ struct HistogramData OPCN2::read_histogram(){
 
     digitalWrite(this->_CS, HIGH);      // Pull the CS High
 
+    data.period = this->_calculate_float(vals[44], vals[45], vals[46], vals[47]);
+    data.sfr    = this->_calculate_float(vals[36], vals[37], vals[38], vals[39]);
+
+    // If convert_to_conc = True, convert from raw data to concentration
+    double conv;
+
+    if ( convert_to_conc != true ) {
+        conv = 1.0;
+    }
+    else {
+        conv = data.sfr * data.period;
+    }
+
     // Calculate all of the values!
-    data.bin0 = this->_16bit_int(vals[0], vals[1]);
-    data.bin1 = this->_16bit_int(vals[2], vals[3]);
-    data.bin2 = this->_16bit_int(vals[4], vals[5]);
-    data.bin3 = this->_16bit_int(vals[6], vals[7]);
-    data.bin4 = this->_16bit_int(vals[8], vals[9]);
-    data.bin5 = this->_16bit_int(vals[10], vals[11]);
-    data.bin6 = this->_16bit_int(vals[12], vals[13]);
-    data.bin7 = this->_16bit_int(vals[14], vals[15]);
-    data.bin8 = this->_16bit_int(vals[16], vals[17]);
-    data.bin9 = this->_16bit_int(vals[18], vals[19]);
-    data.bin10 = this->_16bit_int(vals[20], vals[21]);
-    data.bin11 = this->_16bit_int(vals[22], vals[23]);
-    data.bin12 = this->_16bit_int(vals[24], vals[25]);
-    data.bin13 = this->_16bit_int(vals[26], vals[27]);
-    data.bin14 = this->_16bit_int(vals[28], vals[29]);
-    data.bin15 = this->_16bit_int(vals[30], vals[31]);
+    data.bin0   = this->_16bit_int(vals[0], vals[1]) / conv;
+    data.bin1   = this->_16bit_int(vals[2], vals[3]) / conv;
+    data.bin2   = this->_16bit_int(vals[4], vals[5]) / conv;
+    data.bin3   = this->_16bit_int(vals[6], vals[7]) / conv;
+    data.bin4   = this->_16bit_int(vals[8], vals[9]) / conv;
+    data.bin5   = this->_16bit_int(vals[10], vals[11]) / conv;
+    data.bin6   = this->_16bit_int(vals[12], vals[13]) / conv;
+    data.bin7   = this->_16bit_int(vals[14], vals[15]) / conv;
+    data.bin8   = this->_16bit_int(vals[16], vals[17]) / conv;
+    data.bin9   = this->_16bit_int(vals[18], vals[19]) / conv;
+    data.bin10  = this->_16bit_int(vals[20], vals[21]) / conv;
+    data.bin11  = this->_16bit_int(vals[22], vals[23]) / conv;
+    data.bin12  = this->_16bit_int(vals[24], vals[25]) / conv;
+    data.bin13  = this->_16bit_int(vals[26], vals[27]) / conv;
+    data.bin14  = this->_16bit_int(vals[28], vals[29]) / conv;
+    data.bin15  = this->_16bit_int(vals[30], vals[31]) / conv;
 
     data.bin1MToF = int(vals[32]) / 3.0;
     data.bin3MToF = int(vals[33]) / 3.0;
     data.bin5MToF = int(vals[34]) / 3.0;
     data.bin7MToF = int(vals[35]) / 3.0;
 
-    data.sfr = this->_calculate_float(vals[36], vals[37], vals[38], vals[39]);
-
     // This holds either temperature or pressure
     // If temp, this is temp in C x 10
     // If pressure, this is pressure in Pa
     data.temp_pressure = this->_32bit_int(vals[40], vals[41], vals[42], vals[43]);
-
-    data.period = this->_calculate_float(vals[44], vals[45], vals[46], vals[47]);
 
     data.checksum = this->_16bit_int(vals[48], vals[49]);
 
