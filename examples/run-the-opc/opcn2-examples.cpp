@@ -6,7 +6,7 @@
   Written by David H Hagan, June 2016
 */
 
-#include "opcn2/opcn2.h"
+#include "opcn2.h"
 
 #define CS A2
 
