@@ -204,7 +204,7 @@ public:
     ConfigVars read_configuration_variables();
     ConfigVars2 read_configuration_variables2();
     PMData read_pm_data();
-    HistogramData read_histogram(bool convert_to_conc);
+    HistogramData read_histogram(bool convert_to_conc = true);
 };
 
 #endif
