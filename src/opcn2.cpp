@@ -667,22 +667,22 @@ struct HistogramData OPCN2::read_histogram(bool convert_to_conc)
   }
 
   // Calculate all of the values!
-  data.bin0   = this->_16bit_int(vals[0], vals[1]) / conv;
-  data.bin1   = this->_16bit_int(vals[2], vals[3]) / conv;
-  data.bin2   = this->_16bit_int(vals[4], vals[5]) / conv;
-  data.bin3   = this->_16bit_int(vals[6], vals[7]) / conv;
-  data.bin4   = this->_16bit_int(vals[8], vals[9]) / conv;
-  data.bin5   = this->_16bit_int(vals[10], vals[11]) / conv;
-  data.bin6   = this->_16bit_int(vals[12], vals[13]) / conv;
-  data.bin7   = this->_16bit_int(vals[14], vals[15]) / conv;
-  data.bin8   = this->_16bit_int(vals[16], vals[17]) / conv;
-  data.bin9   = this->_16bit_int(vals[18], vals[19]) / conv;
-  data.bin10  = this->_16bit_int(vals[20], vals[21]) / conv;
-  data.bin11  = this->_16bit_int(vals[22], vals[23]) / conv;
-  data.bin12  = this->_16bit_int(vals[24], vals[25]) / conv;
-  data.bin13  = this->_16bit_int(vals[26], vals[27]) / conv;
-  data.bin14  = this->_16bit_int(vals[28], vals[29]) / conv;
-  data.bin15  = this->_16bit_int(vals[30], vals[31]) / conv;
+  data.bin0   = (double)this->_16bit_int(vals[0], vals[1]) / conv;
+  data.bin1   = (double)this->_16bit_int(vals[2], vals[3]) / conv;
+  data.bin2   = (double)this->_16bit_int(vals[4], vals[5]) / conv;
+  data.bin3   = (double)this->_16bit_int(vals[6], vals[7]) / conv;
+  data.bin4   = (double)this->_16bit_int(vals[8], vals[9]) / conv;
+  data.bin5   = (double)this->_16bit_int(vals[10], vals[11]) / conv;
+  data.bin6   = (double)this->_16bit_int(vals[12], vals[13]) / conv;
+  data.bin7   = (double)this->_16bit_int(vals[14], vals[15]) / conv;
+  data.bin8   = (double)this->_16bit_int(vals[16], vals[17]) / conv;
+  data.bin9   = (double)this->_16bit_int(vals[18], vals[19]) / conv;
+  data.bin10  = (double)this->_16bit_int(vals[20], vals[21]) / conv;
+  data.bin11  = (double)this->_16bit_int(vals[22], vals[23]) / conv;
+  data.bin12  = (double)this->_16bit_int(vals[24], vals[25]) / conv;
+  data.bin13  = (double)this->_16bit_int(vals[26], vals[27]) / conv;
+  data.bin14  = (double)this->_16bit_int(vals[28], vals[29]) / conv;
+  data.bin15  = (double)this->_16bit_int(vals[30], vals[31]) / conv;
 
   data.bin1MToF = int(vals[32]) / 3.0;
   data.bin3MToF = int(vals[33]) / 3.0;

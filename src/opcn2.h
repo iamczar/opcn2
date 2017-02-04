@@ -23,22 +23,22 @@ struct Firmware {
 };
 
 struct HistogramData {
-    int bin0;
-    int bin1;
-    int bin2;
-    int bin3;
-    int bin4;
-    int bin5;
-    int bin6;
-    int bin7;
-    int bin8;
-    int bin9;
-    int bin10;
-    int bin11;
-    int bin12;
-    int bin13;
-    int bin14;
-    int bin15;
+    double bin0;
+    double bin1;
+    double bin2;
+    double bin3;
+    double bin4;
+    double bin5;
+    double bin6;
+    double bin7;
+    double bin8;
+    double bin9;
+    double bin10;
+    double bin11;
+    double bin12;
+    double bin13;
+    double bin14;
+    double bin15;
 
     // Mass Time-of-Flight
     float bin1MToF;
