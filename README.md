@@ -11,10 +11,19 @@ makes it easy to operate the OPC-N2 from a Particle Photon, Particle Electron, o
 
 # Example Usage
 
-Two examples are located in the examples folder.
+Three examples are located in the examples folder.
 
-  1. opcn2-examples.cpp: Normal Example Run File
-  2. tests.cpp: Runs through a solid portion of the methods and prints the results to the console.
+  1. `\run-the-opc`: shows you the basics of how to use the library with a Particle photon/electron.
+  2. `\tests`: runs through a solid portion of the methods and prints the results to the console.
+  3. `\wifi-opc`: sets the OPC and sets the PM data as public variables.
+
+# Documentation
+
+API documentation  can be found in the [docs folder](/doc/index.md).
+
+# Issues/Questions
+
+If there is a bug or other issue with the code, please create an issue on this git repo. If you have general questions, please reach out to me via PM over github or email (dhagan@mit.edu).
 
 # Recommended Components
 
