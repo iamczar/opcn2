@@ -13,12 +13,128 @@ PMData pm;
 ConfigVars vars;
 ConfigVars2 vars2;
 
+char incomingChar;
+
+//forward declarations
+void printInstructions();
+
 void setup(){
-    delay(2000);
     Serial.begin(9600);
+
+    while (!Serial.isConnected()){
+      Particle.process();
+    }
+
+    delay(1000);
+
+    printInstructions();
+}
+
+void loop() {
+
+  while (Serial.available()) {
+    incomingChar = Serial.read();
+
+    Serial.println("");
+
+    switch (incomingChar) {
+      case 'h':
+        printInstructions();
+        break;
+      case '?':
+        printInstructions();
+        break;
+      case '+': {
+        int k = alpha.on();
+        Serial.printlnf("ON? %d", k);
+        break;
+      }
+      case '-': {
+        int k = alpha.off();
+        Serial.printlnf("OFF? %d", k);
+        break;
+      }
+      case 'i':
+        Serial.println(alpha.read_information_string());
+        break;
+      case 's': {
+        Status s = alpha.read_status();
+        String r = "Status";
+        r += "\n\tfanON = " + String(s.fanON);
+        r += "\n\tlaserON = " + String(s.laserON);
+        r += "\n\tfanDAC = " + String(s.fanDAC);
+        r += "\n\tlaserDAC = " + String(s.laserDAC);
+
+        Serial.println(r);
+        break;
+      }
+      case 'f': {
+        Firmware fw = alpha.read_firmware_version();
+
+        Serial.println(String::format("v%d.%d", fw.major, fw.minor));
+        break;
+      }
+      case 'v': {
+        alpha.set_firmware_version();
+        Serial.println(String::format("fw v%d.%d", alpha.firm_ver.major, alpha.firm_ver.minor));
+        break;
+      }
+      case 'w': {
+        int r = alpha.toggle_fan(true);
+
+        Serial.println("Fan ON = " + String(r));
+        break;
+      }
+      case 'x': {
+        int r = alpha.toggle_fan(false);
+
+        Serial.println("Fan OFF = " + String(r));
+        break;
+      }
+      case 'y': {
+        int r = alpha.toggle_laser(true);
+
+        Serial.println("Laser ON = " + String(r));
+        break;
+      }
+      case 'z': {
+        int r = alpha.toggle_laser(false);
+
+        Serial.println("Laser OFF = " + String(r));
+        break;
+      }
+      case '\n':
+        break;
+      default:
+        Serial.println("Invalid command. Press 'h' or '?' for help.");
+    }
+  }
+}
+
+
+void printInstructions() {
+  String helpMessage = "Command Options:";
+  helpMessage += "\n\th/?: Print Instructions";
+  helpMessage += "\n\t+: OPC.on()";
+  helpMessage += "\n\t-: OPC.off()";
+  helpMessage += "\n\ti: OPC.read_information_string()";
+  helpMessage += "\n\ts: OPC.read_status()";
+  helpMessage += "\n\tf: OPC.read_firmware()";
+  helpMessage += "\n\tv: OPC.set_firmware_version()";
+  helpMessage += "\n\tw: OPC.toggle_fan(true)";
+  helpMessage += "\n\tx: OPC.toggle_fan(false)";
+  helpMessage += "\n\ty: OPC.toggle_laser(true)";
+  helpMessage += "\n\tz: OPC.toggle_laser(false)";
+
+  // Print out the instructions
+  Serial.println(helpMessage);
+};
+    /*
 
     // Test the Firmware methods
     Serial.println("Testing Firmware Methods");
+
+    delay(1000);
 
     // Test the Info String
     Serial.print("\t.read_information_string()");
@@ -162,19 +278,4 @@ void setup(){
     Serial.println("\t" + String(alpha.off()));
 
     Serial.println("\n\nTests are now complete!\n\n");
-
-
-}
-
-void loop(){
-  // If firmware >= v18, try just using the PM read
-  if (alpha.firm_ver.major >= 18){
-    delay(3000);
-
-    pm = alpha.read_pm_data();
-
-    Serial.print("\tPM1: "); Serial.println(pm.pm1);
-    Serial.print("\tPM1.5: "); Serial.println(pm.pm25);
-    Serial.print("\tPM10: "); Serial.println(pm.pm10);
-  }
-}
+    */

@@ -184,6 +184,7 @@ public:
     Firmware firm_ver;
 
     // methods
+    void set_firmware_version();
     bool ping();
     bool on();
     bool off();

@@ -10,7 +10,7 @@ OPCN2::OPCN2(uint8_t chip_select)
   SPI.begin(_CS);
   SPI.setBitOrder(MSBFIRST);
   SPI.setDataMode(SPI_MODE1);
-  SPI.setClockSpeed(1000000);
+  SPI.setClockSpeed(500000);
 
   // Set the firmware version
   _fv = this->read_information_string().replace(".", "").trim().substring(24, 26).toInt();
@@ -25,6 +25,23 @@ OPCN2::OPCN2(uint8_t chip_select)
 
     firm_ver.major = tmp.major;
     firm_ver.minor = tmp.minor;
+  }
+}
+
+void OPCN2::set_firmware_version( void )
+{
+  // Set the firmware version in case it previously failed
+  // Set the firmware version
+  _fv = this->read_information_string().replace(".", "").trim().substring(24, 26).toInt();
+
+  if (_fv < 18) {
+    this->firm_ver.major = _fv;
+    this->firm_ver.minor = 0;
+  } else {
+    Firmware tmp = this->read_firmware_version();
+
+    this->firm_ver.major = tmp.major;
+    this->firm_ver.minor = tmp.minor;
   }
 }
 
@@ -167,35 +184,27 @@ struct Status OPCN2::read_status()
   Status data;
   byte vals[4];
 
-  if (this->firm_ver.major < 18) {
-    data.fanON    = -999;
-    data.laserON  = -999;
-    data.fanDAC   = -999;
-    data.laserDAC = -999;
+  // Read the status
+  digitalWrite(this->_CS, LOW);
+  SPI.transfer(0x13);
+  digitalWrite(this->_CS, HIGH);
+
+  delay(10);
+
+  // Send the read command and build the array of data
+  digitalWrite(this->_CS, LOW);
+  for (int i = 0; i < 4; i++){
+    vals[i] = SPI.transfer(0x13);
+    delayMicroseconds(4);
   }
-  else {
-    // Read the status
-    digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x13);
-    digitalWrite(this->_CS, HIGH);
 
-    delay(10);
+  digitalWrite(this->_CS, HIGH);
 
-    // Send the read command and build the array of data
-    digitalWrite(this->_CS, LOW);
-    for (int i = 0; i < 4; i++){
-      vals[i] = SPI.transfer(0x13);
-      delayMicroseconds(4);
-    }
-
-    digitalWrite(this->_CS, HIGH);
-
-    // Calculate the values!
-    data.fanON    = (unsigned int)vals[0];
-    data.laserON  = (unsigned int)vals[1];
-    data.fanDAC   = (unsigned int)vals[2];
-    data.laserDAC = (unsigned int)vals[3];
-  }
+  // Calculate the values!
+  data.fanON    = (unsigned int)vals[0];
+  data.laserON  = (unsigned int)vals[1];
+  data.fanDAC   = (unsigned int)vals[2];
+  data.laserDAC = (unsigned int)vals[3];
 
   return data;
 }
@@ -207,24 +216,18 @@ struct Firmware OPCN2::read_firmware_version()
   // $ alpha.read_firmware_version()
   Firmware res;
 
-  if (this->firm_ver.major < 18) {
-    res.major = -999;
-    res.minor = -999;
-  }
-  else {
-    // Read the Firmware version
-    digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x12);
-    digitalWrite(this->_CS, HIGH);
+  // Read the Firmware version
+  digitalWrite(this->_CS, LOW);
+  SPI.transfer(0x12);
+  digitalWrite(this->_CS, HIGH);
 
-    delay(10);
+  delay(10);
 
-    digitalWrite(this->_CS, LOW);
-    res.major = (unsigned int)SPI.transfer(0x00);
-    delayMicroseconds(4);
-    res.minor = (unsigned int)SPI.transfer(0x00);
-    digitalWrite(this->_CS, HIGH);
-  }
+  digitalWrite(this->_CS, LOW);
+  res.major = (unsigned int)SPI.transfer(0x00);
+  delayMicroseconds(4);
+  res.minor = (unsigned int)SPI.transfer(0x00);
+  digitalWrite(this->_CS, HIGH);
 
   return res;
 }
