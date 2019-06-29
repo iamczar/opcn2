@@ -7,8 +7,11 @@
 #ifndef Opcn2_h
 #define Opcn2_h
 
+#include <Arduino.h>
+#include <SPI.h>
+
 // Includes
-#include "application.h"
+//#include "application.h"
 
 struct Status {
     int fanON;

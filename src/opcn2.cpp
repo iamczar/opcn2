@@ -1,16 +1,23 @@
+
+#include <Arduino.h>
+#include <SPI.h>
 #include "opcn2.h"
 
+SPISettings setting(2000000, MSBFIRST, SPI_MODE1);
 OPCN2::OPCN2(uint8_t chip_select)
 {
   // Initiate an instance of the OPCN2 class
   // Ex. OPCN2 alpha(chip_select = A2);
   _CS = chip_select;
 
-  // Set up SPI
-  SPI.begin(_CS);
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE1);
-  SPI.setClockSpeed(500000);
+  // Set up SPI1
+  pinMode(_CS, OUTPUT);
+  SPI1.begin();
+  SPI1.setMISO(5);
+  SPI1.setMOSI(21);
+  SPI1.setSCK(20);
+  SPI1.setBitOrder(MSBFIRST);
+  digitalWrite(_CS, HIGH);//initilising Chip select by setting it to HIGH
 
   // Set the firmware version
   _fv = this->read_information_string().replace(".", "").trim().substring(24, 26).toInt();
@@ -97,7 +104,7 @@ bool OPCN2::ping()
   byte expected[] = {0xF3};
 
   digitalWrite(this->_CS, LOW);       // pull the pin low
-  resp[0] = SPI.transfer(0xCF);       // issue the command byte
+  resp[0] = SPI1.transfer(0xCF);       // issue the command byte
   digitalWrite(this->_CS, HIGH);      // pull the pin high
 
   return this->_compare_arrays(resp, expected, 1);
@@ -112,15 +119,19 @@ bool OPCN2::on()
   byte vals[2];
   byte expected[] = {0xF3, 0x03};
 
+  SPI1.beginTransaction(setting);
+
   digitalWrite(this->_CS, LOW);
-  vals[0] = SPI.transfer(0x03);
+  vals[0] = SPI1.transfer(0x03);
   digitalWrite(this->_CS, HIGH);
+  SPI1.endTransaction();
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
-  vals[1] = SPI.transfer(0x00);
+  vals[1] = SPI1.transfer(0x00);
   digitalWrite(this->_CS, HIGH);
+  SPI1.endTransaction();
 
   return this->_compare_arrays(vals, expected, 2);
 }
@@ -135,13 +146,13 @@ bool OPCN2::off()
   byte expected[] = {0xF3, 0x03};
 
   digitalWrite(this->_CS, LOW);
-  vals[0] = SPI.transfer(0x03);
+  vals[0] = SPI1.transfer(0x03);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
-  vals[1] = SPI.transfer(0x01);
+  vals[1] = SPI1.transfer(0x01);
   digitalWrite(this->_CS, HIGH);
 
   return this->_compare_arrays(vals, expected, 2);
@@ -157,7 +168,7 @@ String OPCN2::read_information_string()
   byte vals[61];
 
   digitalWrite(this->_CS, LOW);
-  SPI.transfer(0x3F);
+  SPI1.transfer(0x3F);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(3000);
@@ -165,7 +176,7 @@ String OPCN2::read_information_string()
   // Iterate to read the entire string
   digitalWrite(this->_CS, LOW);
   for (int i = 0; i < 60; i++){
-    vals[i] = SPI.transfer(0x00);
+    vals[i] = SPI1.transfer(0x00);
     result += String((char)vals[i]);
     delayMicroseconds(4);
   }
@@ -186,7 +197,7 @@ struct Status OPCN2::read_status()
 
   // Read the status
   digitalWrite(this->_CS, LOW);
-  SPI.transfer(0x13);
+  SPI1.transfer(0x13);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
@@ -194,7 +205,7 @@ struct Status OPCN2::read_status()
   // Send the read command and build the array of data
   digitalWrite(this->_CS, LOW);
   for (int i = 0; i < 4; i++){
-    vals[i] = SPI.transfer(0x13);
+    vals[i] = SPI1.transfer(0x13);
     delayMicroseconds(4);
   }
 
@@ -218,15 +229,15 @@ struct Firmware OPCN2::read_firmware_version()
 
   // Read the Firmware version
   digitalWrite(this->_CS, LOW);
-  SPI.transfer(0x12);
+  SPI1.transfer(0x12);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
-  res.major = (unsigned int)SPI.transfer(0x00);
+  res.major = (unsigned int)SPI1.transfer(0x00);
   delayMicroseconds(4);
-  res.minor = (unsigned int)SPI.transfer(0x00);
+  res.minor = (unsigned int)SPI1.transfer(0x00);
   digitalWrite(this->_CS, HIGH);
 
   return res;
@@ -262,14 +273,14 @@ bool OPCN2::save_config_variables()
   byte expected[] = {0xF3, 0x43, 0x3f, 0x3c, 0x3f, 0x3c};
 
   digitalWrite(this->_CS, LOW);
-  resp[0] = SPI.transfer(commands[0]);
+  resp[0] = SPI1.transfer(commands[0]);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
   for (int i = 1; i < (int)sizeof(commands); i++){
-    resp[i] = SPI.transfer(commands[i]);
+    resp[i] = SPI1.transfer(commands[i]);
     delayMicroseconds(4);
   }
 
@@ -285,7 +296,7 @@ bool OPCN2::enter_bootloader()
   byte expected[] = {0xF3};
 
   digitalWrite(this->_CS, LOW);
-  resp[0] = SPI.transfer(0x41);
+  resp[0] = SPI1.transfer(0x41);
   digitalWrite(this->_CS, HIGH);
 
   return this->_compare_arrays(resp, expected, 1);
@@ -301,17 +312,17 @@ bool OPCN2::set_fan_power(uint8_t value)
   byte expected[] = {0xF3, 0x42, 0x00};
 
   digitalWrite(this->_CS, LOW);
-  resp[0] = SPI.transfer(0x42);
+  resp[0] = SPI1.transfer(0x42);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
-  resp[1] = SPI.transfer(0x00);
+  resp[1] = SPI1.transfer(0x00);
 
   delayMicroseconds(4);
 
-  resp[2] = SPI.transfer(value);
+  resp[2] = SPI1.transfer(value);
   digitalWrite(this->_CS, HIGH);
 
   return this->_compare_arrays(resp, expected, 3);
@@ -327,17 +338,17 @@ bool OPCN2::set_laser_power(uint8_t value)
   byte expected[] = {0xF3, 0x42, 0x01};
 
   digitalWrite(this->_CS, LOW);
-  resp[0] = SPI.transfer(0x42);
+  resp[0] = SPI1.transfer(0x42);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
-  resp[1] = SPI.transfer(0x01);
+  resp[1] = SPI1.transfer(0x01);
 
   delayMicroseconds(4);
 
-  resp[2] = SPI.transfer(value);
+  resp[2] = SPI1.transfer(value);
   digitalWrite(this->_CS, HIGH);
 
   return this->_compare_arrays(resp, expected, 3);
@@ -352,7 +363,7 @@ bool OPCN2::toggle_fan(bool state)
   byte expected[] = {0xF3, 0x03};
 
   digitalWrite(this->_CS, LOW);
-  resp[0] = SPI.transfer(0x03);
+  resp[0] = SPI1.transfer(0x03);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
@@ -360,10 +371,10 @@ bool OPCN2::toggle_fan(bool state)
   // turn either on or off
   digitalWrite(this->_CS, LOW);
   if (state == true){
-    resp[1] = SPI.transfer(0x04);
+    resp[1] = SPI1.transfer(0x04);
   }
   else {
-    resp[1] = SPI.transfer(0x05);
+    resp[1] = SPI1.transfer(0x05);
   }
 
   digitalWrite(this->_CS, HIGH);
@@ -387,10 +398,10 @@ bool OPCN2::toggle_laser(bool state)
 
   digitalWrite(this->_CS, LOW);
   if (state == true){
-    resp[1] = SPI.transfer(0x02);
+    resp[1] = SPI1.transfer(0x02);
   }
   else {
-    resp[1] = SPI.transfer(0x03);
+    resp[1] = SPI1.transfer(0x03);
   }
 
   digitalWrite(this->_CS, HIGH);
@@ -408,14 +419,14 @@ struct ConfigVars OPCN2::read_configuration_variables()
 
   // Read the config variables
   digitalWrite(this->_CS, LOW);
-  SPI.transfer(0x3c);
+  SPI1.transfer(0x3c);
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(10000);
 
   digitalWrite(this->_CS, LOW);
   for (int i = 0; i < 256; i++){
-    vals[i] = SPI.transfer(0x00);
+    vals[i] = SPI1.transfer(0x00);
     delayMicroseconds(4);
   }
 
@@ -528,14 +539,14 @@ struct ConfigVars2 OPCN2::read_configuration_variables2()
   else {
     // Read the config variables
     digitalWrite(this->_CS, LOW);
-    SPI.transfer(0x3D);
+    SPI1.transfer(0x3D);
     digitalWrite(this->_CS, HIGH);
 
     delayMicroseconds(10000);
 
     digitalWrite(this->_CS, LOW);
     for (int i = 0; i < 9; i++){
-        vals[i] = SPI.transfer(0x00);
+        vals[i] = SPI1.transfer(0x00);
         delayMicroseconds(4);
     }
 
@@ -567,7 +578,7 @@ String OPCN2::read_serial_number()
   }
   else {
     digitalWrite(this->_CS, LOW);       // Pull the CS low
-    SPI.transfer(0x10);                 // Send the start command
+    SPI1.transfer(0x10);                 // Send the start command
     digitalWrite(this->_CS, HIGH);       // Pull the CS High
 
     delayMicroseconds(3000);
@@ -575,7 +586,7 @@ String OPCN2::read_serial_number()
     // Iterate to read the entire string
     digitalWrite(this->_CS, LOW);
     for (int i = 0; i < 61; i++){
-        vals[i] = SPI.transfer(0x00);
+        vals[i] = SPI1.transfer(0x00);
         result += String((char)vals[i]);
         delayMicroseconds(4);
     }
@@ -605,7 +616,7 @@ struct PMData OPCN2::read_pm_data()
   else {
       // Read the data and clear the local memory
       digitalWrite(this->_CS, LOW);       // Pull the CS Low
-      SPI.transfer(0x32);                 // Transfer the command byte
+      SPI1.transfer(0x32);                 // Transfer the command byte
       digitalWrite(this->_CS, HIGH);
 
       delayMicroseconds(12000);           // Delay for 12 ms
@@ -614,7 +625,7 @@ struct PMData OPCN2::read_pm_data()
       digitalWrite(this->_CS, LOW);
 
       for (int i = 0; i < 12; i++){
-          vals[i] = SPI.transfer(0x00);
+          vals[i] = SPI1.transfer(0x00);
           delayMicroseconds(4);
       }
 
@@ -641,7 +652,7 @@ struct HistogramData OPCN2::read_histogram(bool convert_to_conc)
 
   // Read the data and clear the local memory
   digitalWrite(this->_CS, LOW);       // Pull the CS Low
-  SPI.transfer(0x30);                 // Transfer the command byte
+  SPI1.transfer(0x30);                 // Transfer the command byte
   digitalWrite(this->_CS, HIGH);
 
   delayMicroseconds(12000);           // Delay for 12 ms
@@ -650,7 +661,7 @@ struct HistogramData OPCN2::read_histogram(bool convert_to_conc)
   digitalWrite(this->_CS, LOW);
 
   for (int i = 0; i < 62; i++){
-      vals[i] = SPI.transfer(0x00);
+      vals[i] = SPI1.transfer(0x00);
       delayMicroseconds(4);
   }
 
